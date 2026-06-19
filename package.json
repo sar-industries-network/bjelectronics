@@ -1,6 +1,6 @@
 {
   "name": "bjelectronics-enterprise-next-supabase",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "private": true,
   "description": "BJ ELECTRONICS enterprise ecommerce frontend for Hostinger with Supabase backend.",
   "scripts": {
@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@next/env": "16.2.9",
+    "@stripe/stripe-js": "^4.10.0",
+    "@supabase/supabase-js": "^2.57.0",
     "lucide-react": "^0.475.0",
     "next": "16.2.9",
     "react": "19.2.1",
