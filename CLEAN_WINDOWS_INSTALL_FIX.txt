@@ -1,0 +1,20 @@
+Why your previous install failed:
+The old package-lock.json contained an internal OpenAI package registry URL:
+packages.applied-caas-gateway1.internal.api.openai.org
+That URL is not accessible from your Windows device.
+
+What is fixed in this package:
+- package-lock.json removed
+- .npmrc added with registry=https://registry.npmjs.org/
+- start-local.bat and build-local.bat force public npm registry
+
+If Windows shows EPERM while deleting node_modules:
+1. Close VS Code, terminals, and any running npm/Next server.
+2. Delete the node_modules folder manually.
+3. Run start-local.bat again.
+
+If npm still times out:
+Run these in Command Prompt:
+npm config set registry https://registry.npmjs.org/
+npm cache clean --force
+npm install --registry=https://registry.npmjs.org/ --no-audit --no-fund
