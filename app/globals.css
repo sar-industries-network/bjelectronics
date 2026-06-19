@@ -2,17 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light; }
+:root {
+  color-scheme: light;
+  --page-x: clamp(14px, 4vw, 28px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 html.dark { color-scheme: dark; }
-body { @apply m-0 bg-slate-50 text-slate-950 antialiased dark:bg-[#07111f] dark:text-white; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+html { scroll-behavior: smooth; text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+body {
+  @apply m-0 bg-slate-50 text-slate-950 antialiased dark:bg-[#07111f] dark:text-white;
+  min-width: 320px;
+  overflow-x: hidden;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 a { @apply no-underline text-inherit; }
 button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+img, svg, video, canvas { max-width: 100%; }
+
 .container-x { @apply mx-auto w-[min(1220px,calc(100%-28px))]; }
 .glass { @apply border border-white/70 bg-white/80 shadow-premium backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.055]; }
 .card { @apply rounded-3xl border border-slate-200 bg-white p-5 shadow-premium dark:border-white/10 dark:bg-white/[0.06]; }
-.btn { @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-glow transition hover:-translate-y-0.5 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-400/30; }
-.btn-soft { @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-900 transition hover:border-brand-blue/50 hover:text-brand-blue dark:border-white/10 dark:bg-white/10 dark:text-white; }
-.input { @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-blue focus:ring-4 focus:ring-blue-400/15 dark:border-white/10 dark:bg-white/[0.06] dark:text-white; }
+.btn { @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-bold text-white shadow-glow transition hover:-translate-y-0.5 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-400/30; min-height: 44px; }
+.btn-soft { @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-900 transition hover:border-brand-blue/50 hover:text-brand-blue dark:border-white/10 dark:bg-white/10 dark:text-white; min-height: 44px; }
+.input { @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-blue focus:ring-4 focus:ring-blue-400/15 dark:border-white/10 dark:bg-white/[0.06] dark:text-white; min-height: 44px; }
 .badge-red { @apply rounded-full bg-brand-red px-3 py-1 text-xs font-black text-white; }
 .badge-blue { @apply rounded-full bg-blue-100 px-3 py-1 text-xs font-black text-brand-blue dark:bg-blue-500/15; }
 .nav-pill { @apply rounded-2xl px-4 py-2 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-brand-blue dark:text-slate-300 dark:hover:bg-white/10; }
@@ -24,3 +40,102 @@ button, input, select, textarea { font: inherit; }
 .dark .product-visual { background: radial-gradient(circle at 30% 20%, rgba(22,119,255,.45), transparent 34%), linear-gradient(135deg, rgba(3,7,18,.9), rgba(15,23,42,.6)); }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Premium mobile responsiveness */
+@media (max-width: 640px) {
+  .container-x { width: calc(100% - 24px); }
+  .card { border-radius: 22px; padding: 16px; }
+  .btn { min-height: 46px; padding: 0.72rem 1rem; border-radius: 16px; font-size: 0.86rem; }
+  .btn-soft { min-height: 44px; padding: 0.58rem 0.82rem; border-radius: 16px; font-size: 0.84rem; }
+  .input { min-height: 46px; border-radius: 16px; padding: 0.72rem 0.95rem; font-size: 16px; }
+  .nav-pill { border-radius: 999px; padding: 0.58rem 0.85rem; white-space: nowrap; }
+  .badge-red, .badge-blue { padding: 0.28rem 0.58rem; font-size: 0.68rem; }
+
+  header .container-x { width: calc(100% - 20px); }
+  header .container-x.flex { gap: 0.45rem; }
+  header form button { padding-left: 0.85rem; padding-right: 0.85rem; }
+  header nav .container-x { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.72rem; scrollbar-width: none; }
+  header nav .container-x::-webkit-scrollbar { display: none; }
+
+  h1 { letter-spacing: -0.045em; }
+  .product-visual { min-height: 0 !important; }
+  .product-visual h1, .card h1 { font-size: clamp(2rem, 10vw, 3.35rem) !important; line-height: 0.98 !important; }
+
+  .table { min-width: 680px; font-size: 0.78rem; }
+  .table th { padding: 0.55rem 0.75rem; }
+  .table td { padding: 0.72rem 0.75rem; }
+
+  input[type="number"] { min-width: 74px; }
+}
+
+@media (max-width: 420px) {
+  .container-x { width: calc(100% - 18px); }
+  .card { padding: 14px; border-radius: 20px; }
+  .btn, .btn-soft { width: auto; }
+  .product-visual h1, .card h1 { font-size: clamp(1.8rem, 10vw, 2.75rem) !important; }
+}
+
+/* Mobile admin: convert desktop sidebar into a bottom quick-nav */
+@media (max-width: 1279px) {
+  aside[class*="fixed"][class*="inset-y-0"][class*="left-0"][class*="z-30"] {
+    display: block !important;
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: calc(86px + var(--safe-bottom));
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 10px calc(8px + var(--safe-bottom)) !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.28);
+    border-right: 0 !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 -14px 38px rgba(15, 23, 42, 0.12);
+  }
+  .dark aside[class*="fixed"][class*="inset-y-0"][class*="left-0"][class*="z-30"] {
+    background: rgba(7, 17, 31, 0.94) !important;
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  aside[class*="fixed"][class*="inset-y-0"] > div:first-child,
+  aside[class*="fixed"][class*="inset-y-0"] > .card {
+    display: none !important;
+  }
+  aside[class*="fixed"][class*="inset-y-0"] nav {
+    margin-top: 0 !important;
+    display: flex !important;
+    gap: 8px;
+    min-width: max-content;
+  }
+  aside[class*="fixed"][class*="inset-y-0"] nav a {
+    min-width: 86px;
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 18px !important;
+    padding: 9px 10px !important;
+    font-size: 0.72rem;
+    line-height: 1.05;
+    text-align: center;
+  }
+  aside[class*="fixed"][class*="inset-y-0"] nav a span {
+    gap: 4px !important;
+    justify-content: center;
+  }
+  aside[class*="fixed"][class*="inset-y-0"] nav a svg { width: 16px; height: 16px; }
+  aside[class*="fixed"][class*="inset-y-0"] + main { padding-bottom: calc(100px + var(--safe-bottom)); }
+}
+
+/* Mobile store cards */
+@media (max-width: 767px) {
+  main section.container-x { gap: 0.95rem; }
+  .grid.sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+  .grid.sm\:grid-cols-2 .card { padding: 12px; }
+  .grid.sm\:grid-cols-2 .card h3 { min-height: 44px; font-size: 0.88rem; line-height: 1.18; }
+  .grid.sm\:grid-cols-2 .card .grid.h-36 { height: 112px; border-radius: 20px; font-size: 2.6rem; }
+}
+
+@media (max-width: 360px) {
+  .grid.sm\:grid-cols-2 { grid-template-columns: 1fr; }
+}
