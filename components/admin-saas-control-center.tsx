@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Activity, BellRing, Boxes, CheckCircle2, Clock, DatabaseZap, Flag, Package, RefreshCcw, RadioTower, ServerCog, Workflow } from 'lucide-react';
 import { loadSaasEvents, SaasEvent, SaasOutboxItem, subscribeSaasEvents } from '@/lib/saas/event-bus';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
