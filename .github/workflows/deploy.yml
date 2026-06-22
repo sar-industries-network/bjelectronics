@@ -34,6 +34,9 @@ jobs:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_ADMIN_EMAIL: ${{ secrets.NEXT_PUBLIC_ADMIN_EMAIL }}
 
+      - name: Route smoke checks
+        run: npm run smoke:routes
+
       - name: Verify static export
         run: |
           test -f out/index.html
