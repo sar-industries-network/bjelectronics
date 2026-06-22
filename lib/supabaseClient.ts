@@ -4,10 +4,19 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const hasConfig = url.startsWith('http') && Boolean(key);
 
-// Build-safe client: Next static export must not crash when env values are missing locally.
+// Canonical build-safe browser client.
+// Next static export must not crash when env values are missing locally or in CI preview builds.
 export const supabase = createClient(
   hasConfig ? url : 'https://placeholder.supabase.co',
-  hasConfig ? key : 'placeholder-anon-key'
+  hasConfig ? key : 'placeholder-anon-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  }
 );
 
 export const supabaseRuntimeConfigured = hasConfig;
+export const supabaseClientConfigured = hasConfig;
