@@ -1,12 +1,12 @@
 /* Consolidated UI polish entrypoint.
-   Keep the source files separate for maintainability, but import them through one stable layer. */
-@import './product-detail.css';
-@import './product-detail-plus.css';
+   Source layers are imported through one stable root for predictable cascade order. */
+@import './product-detail-merged.css';
 @import './enterprise-polish.css';
 @import './product-card-polish.css';
 @import './global-ui-shell.css';
 @import './frontend-pro-polish.css';
 @import './audit-quality-polish.css';
+@import './admin-shell.css';
 @import './admin-products-manager.css';
 @import './admin-saas-control.css';
 @import './ops-dashboard.css';
