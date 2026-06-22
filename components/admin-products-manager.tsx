@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import React, { FormEvent, useEffect, useMemo, useState } from 'react';
 import { BarChart3, Boxes, CheckCircle2, Eye, Filter, ImagePlus, LayoutDashboard, ListFilter, Package, PackagePlus, Pencil, Plus, RefreshCcw, Save, Search, Settings, Sparkles, Star, Trash2, UploadCloud, Video } from 'lucide-react';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
@@ -185,9 +185,10 @@ export function AdminProductsManager() {
   const filtered = useMemo(() => {
     const text = query.toLowerCase().trim();
     const list = products.filter((p) => {
+      const isLowStock = Number(p.stock || 0) <= Number(p.low_stock_threshold || 0);
       const matchText = !text || `${p.name} ${p.sku} ${p.brand} ${p.slug}`.toLowerCase().includes(text);
       const matchCategory = category === 'all' || p.category_slug === category;
-      const matchStatus = status === 'all' || (status === 'active' ? p.active : !p.active) || (status === 'low' && Number(p.stock || 0) <= Number(p.low_stock_threshold || 0));
+      const matchStatus = status === 'all' || (status === 'active' && p.active) || (status === 'inactive' && !p.active) || (status === 'low' && isLowStock);
       return matchText && matchCategory && matchStatus;
     });
     return [...list].sort((a, b) => {
@@ -292,7 +293,7 @@ export function AdminProductsManager() {
         <a href="/admin" className="admin-brand"><span>🛒</span><b>BJ Admin</b></a>
         <nav>
           <a href="/admin"><LayoutDashboard size={18} /> Overview</a>
-          <a href="/admin/products" className="active"><Package size={18} /> Products</a>
+          <a href="/admin/product-manager" className="active"><Package size={18} /> Products</a>
           <a href="/admin/orders"><Boxes size={18} /> Orders</a>
           <a href="/admin/inventory"><ListFilter size={18} /> Inventory</a>
           <a href="/admin/settings"><Settings size={18} /> Settings</a>
