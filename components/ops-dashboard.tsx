@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, ArrowUpRight, Bell, Boxes, CircleDollarSign, Clock, DatabaseZap, LayoutDashboard, Package, RefreshCcw, Search, Settings, ShoppingBag, Truck, Zap } from 'lucide-react';
+import { Activity, ArrowUpRight, Bell, Boxes, CircleDollarSign, Clock, DatabaseZap, Package, RefreshCcw, Search, ShoppingBag, Truck } from 'lucide-react';
+import { AdminShell } from './admin-shell';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
 type ProductRow = { id: string; name?: string; sku?: string; brand?: string | null; category_slug?: string | null; price?: number; stock?: number; low_stock_threshold?: number; active?: boolean; image?: string | null; updated_at?: string };
@@ -92,48 +93,33 @@ export function OpsDashboard() {
   };
 
   return (
-    <main className="ops-shell">
-      <aside className="ops-sidebar">
-        <a className="ops-brand" href="/admin"><span>🛒</span><div><b>BJ ELECTRONICS</b><small>Enterprise Console</small></div></a>
-        <nav>
-          <a className="active" href="/admin"><LayoutDashboard size={18} /> Overview</a>
-          <a href="/admin/products"><Package size={18} /> Products</a>
-          <a href="/admin/orders"><Boxes size={18} /> Orders</a>
-          <a href="/admin/product-manager"><ShoppingBag size={18} /> Product Manager</a>
-          <a href="/admin/platform"><DatabaseZap size={18} /> SaaS Platform</a>
-          <a href="/admin/settings"><Settings size={18} /> Settings</a>
-        </nav>
-        <div className="ops-side-card"><Zap size={18} /><b>SAR INDUSTRIES NETWORK</b><p>Realtime commerce operations, event stream, inventory intelligence and admin automation.</p></div>
-      </aside>
+    <AdminShell active="overview">
+      <header className="ops-hero card">
+        <div><span className="admin-eyebrow"><Activity size={16} /> Production Dashboard</span><h1>Realtime Operations Center</h1><p>Live products, orders, notifications, inventory signals, SaaS events and business controls.</p></div>
+        <div className="ops-hero-actions"><div className="ops-live"><span /> Live Sync <b>{lastSync || 'Starting'}</b></div><button className="btn" onClick={load}><RefreshCcw size={17} /> Refresh</button></div>
+      </header>
 
-      <section className="ops-main">
-        <header className="ops-hero card">
-          <div><span className="admin-eyebrow"><Activity size={16} /> Production Dashboard</span><h1>Realtime Operations Center</h1><p>Live products, orders, notifications, inventory signals, SaaS events and business controls.</p></div>
-          <div className="ops-hero-actions"><div className="ops-live"><span /> Live Sync <b>{lastSync || 'Starting'}</b></div><button className="btn" onClick={load}><RefreshCcw size={17} /> Refresh</button></div>
-        </header>
+      {error && <div className="admin-notice bad">{error}</div>}
+      {loading && <div className="card ops-loading">Loading realtime admin dashboard...</div>}
 
-        {error && <div className="admin-notice bad">{error}</div>}
-        {loading && <div className="card ops-loading">Loading realtime admin dashboard...</div>}
-
-        <section className="ops-kpis">
-          <Kpi icon={<CircleDollarSign />} label="Revenue" value={money(metrics.revenue)} sub={`${state.orders.length} total orders`} />
-          <Kpi icon={<Clock />} label="Pending Orders" value={metrics.pendingOrders} sub="Needs attention" tone="warn" />
-          <Kpi icon={<Package />} label="Active Products" value={metrics.activeProducts} sub={`${metrics.lowStock} low stock`} tone={metrics.lowStock ? 'warn' : 'ok'} />
-          <Kpi icon={<Bell />} label="Notifications" value={metrics.unread} sub={`${metrics.pendingOutbox} pending outbox`} />
-          <Kpi icon={<Activity />} label="Event Stream" value={state.events.length} sub="Realtime SaaS events" />
-          <Kpi icon={<Truck />} label="Fulfillment" value="Live" sub="Order sync enabled" tone="ok" />
-        </section>
-
-        <section className="ops-command card"><div className="ops-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search products, SKU, brand or category..." /></div><div><a className="btn-soft" href="/admin/products">Manage Products</a><a className="btn-soft" href="/admin/platform">Platform Events</a><a className="btn" href="/admin/product-manager">Create Product <ArrowUpRight size={16} /></a></div></section>
-
-        <section className="ops-grid">
-          <Panel title="Latest Orders" icon={<Truck />} action="View all" href="/admin/orders"><div className="ops-list">{state.orders.slice(0, 7).map((order) => <OrderItem key={order.id} order={order} />)}{!state.orders.length && <Empty text="No orders found yet." />}</div></Panel>
-          <Panel title="Product Intelligence" icon={<Package />} action="Manage" href="/admin/products"><div className="ops-list">{products.map((product) => <ProductItem key={product.id} product={product} />)}{!products.length && <Empty text="No products match the current search." />}</div></Panel>
-          <Panel title="Realtime Event Feed" icon={<Activity />} action="Platform" href="/admin/platform"><div className="ops-list compact">{state.events.slice(0, 8).map((event) => <EventItem key={event.id} event={event} />)}{!state.events.length && <Empty text="No events yet. Product or order changes will appear here." />}</div></Panel>
-          <Panel title="Feature Flags" icon={<DatabaseZap />}><div className="ops-flags">{state.flags.slice(0, 8).map((flag) => <button key={flag.id} onClick={() => toggleFlag(flag)} className="ops-flag"><div><b>{flag.label}</b><small>{flag.flag_key}</small></div><span className={flag.enabled ? 'status-on' : 'status-off'}>{flag.enabled ? 'On' : 'Off'}</span></button>)}{!state.flags.length && <Empty text="No feature flags configured." />}</div></Panel>
-        </section>
+      <section className="ops-kpis">
+        <Kpi icon={<CircleDollarSign />} label="Revenue" value={money(metrics.revenue)} sub={`${state.orders.length} total orders`} />
+        <Kpi icon={<Clock />} label="Pending Orders" value={metrics.pendingOrders} sub="Needs attention" tone="warn" />
+        <Kpi icon={<Package />} label="Active Products" value={metrics.activeProducts} sub={`${metrics.lowStock} low stock`} tone={metrics.lowStock ? 'warn' : 'ok'} />
+        <Kpi icon={<Bell />} label="Notifications" value={metrics.unread} sub={`${metrics.pendingOutbox} pending outbox`} />
+        <Kpi icon={<Activity />} label="Event Stream" value={state.events.length} sub="Realtime SaaS events" />
+        <Kpi icon={<Truck />} label="Fulfillment" value="Live" sub="Order sync enabled" tone="ok" />
       </section>
-    </main>
+
+      <section className="ops-command card"><div className="ops-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search products, SKU, brand or category..." /></div><div><a className="btn-soft" href="/admin/products">Manage Products</a><a className="btn-soft" href="/admin/platform">Platform Events</a><a className="btn" href="/admin/product-manager">Create Product <ArrowUpRight size={16} /></a></div></section>
+
+      <section className="ops-grid">
+        <Panel title="Latest Orders" icon={<Truck />} action="View all" href="/admin/orders"><div className="ops-list">{state.orders.slice(0, 7).map((order) => <OrderItem key={order.id} order={order} />)}{!state.orders.length && <Empty text="No orders found yet." />}</div></Panel>
+        <Panel title="Product Intelligence" icon={<Package />} action="Manage" href="/admin/products"><div className="ops-list">{products.map((product) => <ProductItem key={product.id} product={product} />)}{!products.length && <Empty text="No products match the current search." />}</div></Panel>
+        <Panel title="Realtime Event Feed" icon={<Activity />} action="Platform" href="/admin/platform"><div className="ops-list compact">{state.events.slice(0, 8).map((event) => <EventItem key={event.id} event={event} />)}{!state.events.length && <Empty text="No events yet. Product or order changes will appear here." />}</div></Panel>
+        <Panel title="Feature Flags" icon={<DatabaseZap />}><div className="ops-flags">{state.flags.slice(0, 8).map((flag) => <button key={flag.id} onClick={() => toggleFlag(flag)} className="ops-flag"><div><b>{flag.label}</b><small>{flag.flag_key}</small></div><span className={flag.enabled ? 'status-on' : 'status-off'}>{flag.enabled ? 'On' : 'Off'}</span></button>)}{!state.flags.length && <Empty text="No feature flags configured." />}</div></Panel>
+      </section>
+    </AdminShell>
   );
 }
 
