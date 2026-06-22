@@ -8,6 +8,7 @@ import './enterprise-polish.css';
 import './product-card-polish.css';
 import './global-ui-shell.css';
 import './frontend-pro-polish.css';
+import './audit-quality-polish.css';
 import './live-sync.css';
 
 export const metadata: Metadata = {
