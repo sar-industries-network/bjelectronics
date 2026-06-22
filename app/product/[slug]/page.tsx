@@ -1,4 +1,4 @@
-import { ProfessionalProductDetail } from '@/components/pro-product-detail';
+import { LiveProfessionalProductDetail } from '@/components/pro-product-detail-live';
 import { seedProducts } from '@/lib/demo-data';
 
 export function generateStaticParams() {
@@ -7,5 +7,5 @@ export function generateStaticParams() {
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <ProfessionalProductDetail slug={slug} />;
+  return <LiveProfessionalProductDetail slug={slug} />;
 }
