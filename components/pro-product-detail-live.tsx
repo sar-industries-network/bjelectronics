@@ -79,16 +79,38 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
     flash(next.includes(product.id) ? 'Added to wishlist' : 'Removed from wishlist');
   };
 
-  const share = async () => {
-    const url = window.location.href;
-    if ('share' in navigator) {
-      await navigator.share({ title: product.name, text: product.description, url });
+  const copyShareLink = async (url: string) => {
+    const nav = navigator as any;
+    if (typeof nav.clipboard?.writeText === 'function') {
+      await nav.clipboard.writeText(url);
       return;
     }
-    await navigator.clipboard?.writeText(url);
-    setCopied(true);
-    flash('Product link copied');
-    setTimeout(() => setCopied(false), 1600);
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  };
+
+  const share = async () => {
+    const url = window.location.href;
+    const nav = navigator as any;
+    try {
+      if (typeof nav.share === 'function') {
+        await nav.share({ title: product.name, text: product.description, url });
+        return;
+      }
+      await copyShareLink(url);
+      setCopied(true);
+      flash('Product link copied');
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      flash('Unable to share right now');
+    }
   };
 
   return (
