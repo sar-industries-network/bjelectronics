@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { GlobalRealtimeClient } from '@/components/global-realtime-client';
+import { GlobalUIShell } from '@/components/global-ui-shell';
 import './globals.css';
 import './product-detail.css';
 import './product-detail-plus.css';
 import './enterprise-polish.css';
 import './product-card-polish.css';
+import './global-ui-shell.css';
 import './live-sync.css';
 
 export const metadata: Metadata = {
@@ -25,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen bg-slate-50 dark:bg-[#07111f]">
         <GlobalRealtimeClient />
+        <GlobalUIShell />
         <div className="min-h-screen flex flex-col">
           {children}
         </div>
