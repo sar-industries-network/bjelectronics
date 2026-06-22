@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { GlobalRealtimeClient } from '@/components/global-realtime-client';
 import './globals.css';
 import './product-detail.css';
 
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen bg-slate-50 dark:bg-[#07111f]">
+        <GlobalRealtimeClient />
         <div className="min-h-screen flex flex-col">
           {children}
         </div>
