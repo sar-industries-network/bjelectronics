@@ -1,6 +1,6 @@
 {
   "name": "bjelectronics-enterprise-next-supabase",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "private": true,
   "description": "BJ ELECTRONICS enterprise ecommerce frontend for Hostinger with Supabase backend.",
   "scripts": {
@@ -10,7 +10,8 @@
     "start": "npx serve@14 out -l 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run build",
+    "smoke:routes": "node scripts/route-smoke-test.mjs",
+    "verify": "npm run typecheck && npm run build && npm run smoke:routes",
     "local:test": "npm run verify"
   },
   "dependencies": {
