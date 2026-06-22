@@ -2,16 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { GlobalRealtimeClient } from '@/components/global-realtime-client';
 import { GlobalUIShell } from '@/components/global-ui-shell';
 import './globals.css';
-import './product-detail.css';
-import './product-detail-plus.css';
-import './enterprise-polish.css';
-import './product-card-polish.css';
-import './global-ui-shell.css';
-import './frontend-pro-polish.css';
-import './audit-quality-polish.css';
-import './admin-products-manager.css';
-import './admin-saas-control.css';
-import './ops-dashboard.css';
+import './ui-polish.css';
 import './live-sync.css';
 
 export const metadata: Metadata = {
