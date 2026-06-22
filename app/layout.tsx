@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bjelectronics.shop'),
   title: 'BJ ELECTRONICS | Bangladesh Electronics Store',
   description: 'Premium online electronics store and admin dashboard for Bangladesh customers.',
-  icons: { icon: '/favicon.svg' }
+  icons: { icon: '/favicon.svg' },
+  manifest: '/manifest.webmanifest'
 };
 
 export const viewport: Viewport = {
