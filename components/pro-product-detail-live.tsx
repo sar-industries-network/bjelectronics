@@ -1,19 +1,22 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Copy, Heart, Minus, PlayCircle, Plus, RotateCcw, Share2, ShieldCheck, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
+import { CheckCircle2, Copy, Heart, HelpCircle, Minus, PlayCircle, Plus, RotateCcw, Share2, ShieldCheck, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
 import { money, seedProducts } from '@/lib/demo-data';
-import { loadState, localCart, setLocalCart } from '@/lib/storage';
+import { loadState, localCart, localWishlist, setLocalCart, setLocalWishlist } from '@/lib/storage';
 import type { Product } from '@/lib/types';
 
-type Tab = 'details' | 'specification' | 'warranty' | 'reviews';
+type Tab = 'overview' | 'specification' | 'delivery' | 'reviews' | 'faq';
 const cleanLabel = (value: string) => value.split('-').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 const galleryFor = (product: Product) => [
   { id: 'front', label: 'Front', icon: product.image },
   { id: 'angle', label: 'Angle', icon: product.image },
+  { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
   { id: 'box', label: 'Box', icon: '📦' },
   { id: 'video', label: 'Video', icon: '▶️' },
 ];
+const variantPrice = (variant: string) => variant === 'Premium Bundle' ? 1200 : variant === 'Extended Pack' ? 2200 : 0;
+const warrantyPrice = (warranty: string) => warranty === '1 Year Extended' ? 499 : warranty === '2 Years Care+' ? 899 : 0;
 
 export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
   const fallback = seedProducts.find((item) => item.slug === slug) || seedProducts[0];
@@ -21,9 +24,14 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
   const [related, setRelated] = useState<Product[]>(seedProducts.filter((item) => item.id !== fallback.id).slice(0, 4));
   const gallery = useMemo(() => galleryFor(product), [product]);
   const [activeImage, setActiveImage] = useState(gallery[0]);
-  const [tab, setTab] = useState<Tab>('details');
+  const [tab, setTab] = useState<Tab>('overview');
   const [qty, setQty] = useState(1);
   const [copied, setCopied] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [deliveryArea, setDeliveryArea] = useState('Dhaka');
+  const [deliveryChecked, setDeliveryChecked] = useState(false);
+  const [compare, setCompare] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
   const [selectedColor, setSelectedColor] = useState('Graphite');
   const [selectedVariant, setSelectedVariant] = useState(Object.values(product.specs)[0] || 'Standard');
   const [selectedWarranty, setSelectedWarranty] = useState('Official Warranty');
@@ -37,9 +45,21 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
       setRelated(state.products.filter((item) => item.id !== liveProduct.id).slice(0, 4));
       setSelectedVariant(Object.values(liveProduct.specs)[0] || 'Standard');
       setActiveImage(galleryFor(liveProduct)[0]);
+      setWishlisted(localWishlist().includes(liveProduct.id));
     });
     return () => { mounted = false; };
   }, [slug]);
+
+  const finalPrice = product.price + variantPrice(selectedVariant) + warrantyPrice(selectedWarranty);
+  const discount = Math.max(0, product.compare_at_price - product.price);
+  const monthly = Math.max(1, Math.round(finalPrice / 12));
+  const stockPercent = Math.max(6, Math.min(100, Math.round((product.stock / Math.max(product.stock, product.low_stock_threshold * 4, 1)) * 100)));
+  const deliveryText = deliveryArea.toLowerCase().includes('dhaka') ? 'Delivery estimate: 24-48 hours inside Dhaka' : 'Delivery estimate: 2-5 working days outside Dhaka';
+
+  const flash = (message: string) => {
+    setNotice(message);
+    setTimeout(() => setNotice(''), 2200);
+  };
 
   const addToCart = (checkout = false) => {
     const cart = localCart();
@@ -47,7 +67,16 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
       ? cart.map((item) => item.productId === product.id ? { ...item, quantity: item.quantity + qty } : item)
       : [...cart, { productId: product.id, quantity: qty }];
     setLocalCart(next);
-    if (checkout) window.location.href = '/checkout';
+    flash(checkout ? 'Added to cart. Opening checkout...' : 'Added to cart successfully');
+    if (checkout) setTimeout(() => { window.location.href = '/checkout'; }, 350);
+  };
+
+  const toggleWishlist = () => {
+    const current = localWishlist();
+    const next = current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id];
+    setLocalWishlist(next);
+    setWishlisted(next.includes(product.id));
+    flash(next.includes(product.id) ? 'Added to wishlist' : 'Removed from wishlist');
   };
 
   const share = async () => {
@@ -58,40 +87,55 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
     }
     await navigator.clipboard?.writeText(url);
     setCopied(true);
+    flash('Product link copied');
     setTimeout(() => setCopied(false), 1600);
   };
 
-  const discount = Math.max(0, product.compare_at_price - product.price);
-  const monthly = Math.max(1, Math.round(product.price / 12));
-
   return (
-    <main className="pdp-page">
+    <main className="pdp-page pdp-plus">
+      {notice && <div className="pdp-notice">⚡ {notice}</div>}
       <div className="pdp-topbar"><a href="/" className="pdp-brand"><span>🛒</span><b>BJ ELECTRONICS</b></a><a href="/products" className="pdp-back">← Continue Shopping</a></div>
       <section className="pdp-shell">
         <div className="pdp-gallery card">
           <div className="pdp-main-media product-visual">
-            {activeImage.id === 'video' ? <div className="pdp-video-card"><PlayCircle size={72}/><h3>Product overview video</h3><p>Design, features, warranty and delivery highlights.</p></div> : <div className="pdp-emoji-preview">{activeImage.icon}</div>}
+            {activeImage.id === 'video' ? <div className="pdp-video-card"><PlayCircle size={72}/><h3>Product overview video</h3><p>Design, features, warranty, unboxing and delivery highlights.</p><button onClick={() => flash('Video preview mode enabled')}>Play Preview</button></div> : <div className="pdp-emoji-preview">{activeImage.icon}</div>}
             <span className="pdp-sale-badge">-{product.discount_percent}% OFF</span>
+            <span className="pdp-live-badge">Live stock: {product.stock}</span>
           </div>
           <div className="pdp-thumbs">{gallery.map((item) => <button key={item.id} onClick={() => setActiveImage(item)} className={activeImage.id === item.id ? 'active' : ''}><span>{item.icon}</span><small>{item.label}</small></button>)}</div>
+          <div className="pdp-gallery-tools"><button onClick={share}><Share2 size={16}/> Share</button><button onClick={() => setCompare(!compare)}>{compare ? <CheckCircle2 size={16}/> : <Plus size={16}/>} Compare</button><button onClick={toggleWishlist}><Heart size={16} fill={wishlisted ? 'currentColor' : 'none'}/> Wishlist</button></div>
         </div>
+
         <div className="pdp-info card">
           <div className="pdp-breadcrumb">Home / {cleanLabel(product.category_slug)} / {product.brand}</div>
           <div className="pdp-title-row"><div><span className="badge-blue">{product.brand}</span><h1>{product.name}</h1></div><button className="pdp-icon-btn" onClick={share}>{copied ? <Copy size={20}/> : <Share2 size={20}/>}</button></div>
           <div className="pdp-rating"><span>{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill="currentColor"/>)}</span><b>{product.rating}</b><em>({product.review_count} verified reviews)</em><strong>SKU: {product.sku}</strong></div>
-          <div className="pdp-price-box"><div><strong>{money(product.price)}</strong><del>{money(product.compare_at_price)}</del></div><p>You save {money(discount)} · EMI from {money(monthly)}/month</p></div>
-          <div className="pdp-options"><OptionGroup title="Color" values={['Graphite', 'Blue', 'Silver']} selected={selectedColor} setSelected={setSelectedColor}/><OptionGroup title="Variant" values={[selectedVariant, 'Premium Bundle', 'Extended Pack']} selected={selectedVariant} setSelected={setSelectedVariant}/><OptionGroup title="Warranty" values={['Official Warranty', '1 Year Extended', '2 Years Care+']} selected={selectedWarranty} setSelected={setSelectedWarranty}/></div>
+          <div className="pdp-price-box"><div><strong>{money(finalPrice)}</strong><del>{money(product.compare_at_price)}</del></div><p>You save {money(discount)} · EMI from {money(monthly)}/month · selected config included</p></div>
+
+          <div className="pdp-offers"><Offer title="Bank Offer" text="Up to 10% instant discount on selected bank cards"/><Offer title="EMI Available" text={`0% EMI from ${money(monthly)}/month`}/><Offer title="Member Deal" text="Free delivery on selected flash deals"/></div>
+
+          <div className="pdp-options"><OptionGroup title="Color" values={['Graphite', 'Blue', 'Silver']} selected={selectedColor} setSelected={setSelectedColor}/><OptionGroup title="Variant" values={[Object.values(product.specs)[0] || 'Standard', 'Premium Bundle', 'Extended Pack']} selected={selectedVariant} setSelected={setSelectedVariant}/><OptionGroup title="Warranty" values={['Official Warranty', '1 Year Extended', '2 Years Care+']} selected={selectedWarranty} setSelected={setSelectedWarranty}/></div>
+          <div className="pdp-config-summary"><b>Selected:</b><span>{selectedColor}</span><span>{selectedVariant}</span><span>{selectedWarranty}</span></div>
+
+          <div className="pdp-delivery-check"><div><Truck size={18}/><b>Check delivery</b></div><div><input value={deliveryArea} onChange={(e) => setDeliveryArea(e.target.value)} placeholder="Enter area or city"/><button onClick={() => setDeliveryChecked(true)}>Check</button></div>{deliveryChecked && <p>{deliveryText}</p>}</div>
+
           <div className="pdp-quantity"><span>Quantity</span><div><button onClick={() => setQty(Math.max(1, qty - 1))}><Minus size={16}/></button><b>{qty}</b><button onClick={() => setQty(qty + 1)}><Plus size={16}/></button></div><strong className={product.stock <= product.low_stock_threshold ? 'low' : ''}>{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</strong></div>
-          <div className="pdp-actions"><button className="btn" onClick={() => addToCart(false)}><ShoppingCart size={18}/> Add to Cart</button><button className="btn pdp-buy" onClick={() => addToCart(true)}><Zap size={18}/> Buy Now</button><button className="btn-soft"><Heart size={18}/> Wishlist</button></div>
+          <div className="pdp-stock-meter"><i style={{ width: `${stockPercent}%` }}/></div>
+          <div className="pdp-actions"><button className="btn" disabled={product.stock <= 0} onClick={() => addToCart(false)}><ShoppingCart size={18}/> Add to Cart</button><button className="btn pdp-buy" disabled={product.stock <= 0} onClick={() => addToCart(true)}><Zap size={18}/> Buy Now</button><button className="btn-soft" onClick={toggleWishlist}><Heart size={18} fill={wishlisted ? 'currentColor' : 'none'}/> Wishlist</button></div>
           <div className="pdp-trust-grid"><Trust icon={<ShieldCheck/>} title="Official Warranty" text="Brand warranty support"/><Trust icon={<Truck/>} title="Fast Delivery" text="Inside Dhaka 24-48h"/><Trust icon={<RotateCcw/>} title="Easy Return" text="7 days replacement"/><Trust icon={<CheckCircle2/>} title="Secure Payment" text="COD, bKash, Nagad, Card"/></div>
         </div>
       </section>
-      <section className="pdp-tabs card"><div className="pdp-tab-head">{(['details','specification','warranty','reviews'] as Tab[]).map((item) => <button key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>{item}</button>)}</div>{tab === 'details' && <div className="pdp-tab-body"><h2>Product Details</h2><p>{product.description}</p><ul><li>Premium selected electronics for Bangladesh customers.</li><li>Checked by BJ ELECTRONICS before dispatch.</li><li>Supports COD, bKash, Nagad and card payment labels.</li></ul></div>}{tab === 'specification' && <div className="pdp-spec-grid">{Object.entries(product.specs).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}<div><span>Brand</span><b>{product.brand}</b></div><div><span>Category</span><b>{cleanLabel(product.category_slug)}</b></div><div><span>Stock</span><b>{product.stock}</b></div></div>}{tab === 'warranty' && <div className="pdp-tab-body"><h2>Warranty & Delivery Information</h2><p>Official warranty is handled according to brand policy. Delivery fee is calculated during checkout.</p></div>}{tab === 'reviews' && <div className="pdp-review-grid"><Review name="Verified Buyer" text="Good packaging, fast delivery and product matched the description."/><Review name="BJ Customer" text="Clear warranty information and responsive support."/></div>}</section>
+
+      <section className="pdp-tabs card"><div className="pdp-tab-head">{(['overview','specification','delivery','reviews','faq'] as Tab[]).map((item) => <button key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>{item}</button>)}</div>{tab === 'overview' && <div className="pdp-tab-body"><h2>Product Details</h2><p>{product.description}</p><ul><li>Professional quality checked before dispatch.</li><li>Variation summary: {selectedColor}, {selectedVariant}, {selectedWarranty}.</li><li>Supports COD, bKash, Nagad and card payment labels.</li></ul></div>}{tab === 'specification' && <div className="pdp-spec-grid">{Object.entries(product.specs).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}<div><span>Brand</span><b>{product.brand}</b></div><div><span>Category</span><b>{cleanLabel(product.category_slug)}</b></div><div><span>Stock</span><b>{product.stock}</b></div><div><span>Selected Color</span><b>{selectedColor}</b></div><div><span>Selected Variant</span><b>{selectedVariant}</b></div><div><span>Selected Warranty</span><b>{selectedWarranty}</b></div></div>}{tab === 'delivery' && <div className="pdp-tab-body"><h2>Delivery & Return Information</h2><p>{deliveryText}. Delivery fee is calculated during checkout. Products are packed securely and checked before dispatch.</p></div>}{tab === 'reviews' && <div className="pdp-review-grid"><Review name="Verified Buyer" text="Good packaging, fast delivery and product matched the description."/><Review name="BJ Customer" text="Clear warranty information and responsive support."/></div>}{tab === 'faq' && <div className="pdp-faq"><FAQ q="Is this product official?" a="Yes, BJ ELECTRONICS lists products with official warranty information where available."/><FAQ q="Can I buy with cash on delivery?" a="Yes, COD is supported along with bKash, Nagad and card labels."/><FAQ q="Can I return the item?" a="Return and replacement are handled under store and brand policy."/></div>}</section>
+
       <section className="pdp-related"><h2>Related Products</h2><div className="pdp-related-grid">{related.map((item) => <a key={item.id} href={`/product/${item.slug}`} className="card"><div>{item.image}</div><b>{item.name}</b><span>{money(item.price)}</span></a>)}</div></section>
+      <div className="pdp-mobile-action"><div><b>{money(finalPrice)}</b><span>{product.stock > 0 ? 'Ready to order' : 'Out of stock'}</span></div><button onClick={() => addToCart(true)} disabled={product.stock <= 0}>Buy Now</button></div>
     </main>
   );
 }
 
-function OptionGroup({ title, values, selected, setSelected }: { title: string; values: string[]; selected: string; setSelected: (value: string) => void }) { return <div><h3>{title}</h3><div>{values.filter(Boolean).map((value) => <button key={value} className={selected === value ? 'active' : ''} onClick={() => setSelected(value)}>{value}</button>)}</div></div>; }
+function OptionGroup({ title, values, selected, setSelected }: { title: string; values: string[]; selected: string; setSelected: (value: string) => void }) { return <div><h3>{title}</h3><div>{Array.from(new Set(values.filter(Boolean))).map((value) => <button key={value} className={selected === value ? 'active' : ''} onClick={() => setSelected(value)}>{value}</button>)}</div></div>; }
+function Offer({ title, text }: { title: string; text: string }) { return <div><b>{title}</b><span>{text}</span></div>; }
 function Trust({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) { return <div>{icon}<b>{title}</b><span>{text}</span></div>; }
 function Review({ name, text }: { name: string; text: string }) { return <div className="pdp-review"><b>{name}</b><p>{text}</p><span>★★★★★</span></div>; }
+function FAQ({ q, a }: { q: string; a: string }) { return <details><summary><HelpCircle size={16}/>{q}</summary><p>{a}</p></details>; }
