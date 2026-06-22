@@ -3,6 +3,7 @@ import { GlobalRealtimeClient } from '@/components/global-realtime-client';
 import './globals.css';
 import './product-detail.css';
 import './product-detail-plus.css';
+import './enterprise-polish.css';
 import './live-sync.css';
 
 export const metadata: Metadata = {
