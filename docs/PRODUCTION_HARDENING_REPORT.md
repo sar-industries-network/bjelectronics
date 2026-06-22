@@ -19,14 +19,15 @@
 - Added advanced product manager route at `/admin/product-manager`.
 - Added live Supabase product management UI with product table, card view, sorting, search, filters, product form, media placeholders, gallery, video, specs JSON, flags, and realtime reload.
 - Added professional CSS for admin product management.
+- Consolidated UI polish imports through `app/ui-polish.css`.
+- Consolidated Supabase browser client usage through a single shared runtime-safe client export.
 
 ## Known limitations
 
 1. Hostinger live redeploy still has to be triggered by Hostinger Git integration or Hostinger panel. The repository is deployment-ready, but this environment cannot press the Hostinger redeploy button.
 2. `/admin/products` now reuses the advanced product manager route.
-3. `components/enterprise-app.tsx` is still a large app shell. It should be split into modules after visual QA.
-4. There are two Supabase client entry files. The app works, but a future cleanup should consolidate them safely.
-5. Some Supabase advisor warnings remain for intentionally public checkout/order tracking security-definer RPC functions.
+3. `components/enterprise-app.tsx` is still a large app shell. It should be split into modules after visual QA because it remains an active storefront shell.
+4. Some Supabase advisor warnings remain for intentionally public checkout/order tracking security-definer RPC functions.
 
 ## Hostinger deployment settings
 
