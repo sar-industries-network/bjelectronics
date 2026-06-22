@@ -42,15 +42,36 @@ export function ProfessionalProductDetail({ slug }: Props) {
     localStorage.setItem('bj_enterprise_state_v3', JSON.stringify({ ...state, cart: next }));
     if (checkout) window.location.href = '/checkout';
   };
-  const shareProduct = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : `https://bjelectronics.shop/product/${product.slug}`;
-    if (typeof navigator !== 'undefined' && 'share' in navigator) {
-      await navigator.share({ title: product.name, text: product.description, url });
+  const copyShareLink = async (url: string) => {
+    const nav = navigator as any;
+    if (typeof nav.clipboard?.writeText === 'function') {
+      await nav.clipboard.writeText(url);
       return;
     }
-    await navigator.clipboard?.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  };
+  const shareProduct = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : `https://bjelectronics.shop/product/${product.slug}`;
+    const nav = navigator as any;
+    try {
+      if (typeof nav.share === 'function') {
+        await nav.share({ title: product.name, text: product.description, url });
+        return;
+      }
+      await copyShareLink(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
   };
   const discount = Math.max(0, product.compare_at_price - product.price);
   const monthly = Math.max(1, Math.round(product.price / 12));
