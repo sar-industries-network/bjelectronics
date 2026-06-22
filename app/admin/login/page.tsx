@@ -1,2 +1,5 @@
-import { EnterpriseApp } from '@/components/enterprise-app';
-export default function Page() { return <EnterpriseApp />; }
+import { redirect } from 'next/navigation';
+
+export default function Page() {
+  redirect('/admin/signin');
+}
