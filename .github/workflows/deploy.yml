@@ -3,6 +3,8 @@ name: Build BJ Electronics
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   build:
@@ -22,15 +24,24 @@ jobs:
         run: npm ci
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-      - name: Build app
+      - name: Build static app
         run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_ADMIN_EMAIL: ${{ secrets.NEXT_PUBLIC_ADMIN_EMAIL }}
 
-      - name: Verify output
+      - name: Verify static export
         run: |
-          echo "Build completed"
-          ls -la
+          test -f out/index.html
+          test -d out/_next
+          echo "Static export verified"
+
+      - name: Upload Hostinger artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bjelectronics-hostinger-out
+          path: out
