@@ -23,14 +23,14 @@
 ## Known limitations
 
 1. Hostinger live redeploy still has to be triggered by Hostinger Git integration or Hostinger panel. The repository is deployment-ready, but this environment cannot press the Hostinger redeploy button.
-2. `/admin/products` still points to the legacy app shell because direct update of that exact file was blocked by connector safety. Use `/admin/product-manager` for the new advanced manager.
+2. `/admin/products` now reuses the advanced product manager route.
 3. `components/enterprise-app.tsx` is still a large app shell. It should be split into modules after visual QA.
 4. There are two Supabase client entry files. The app works, but a future cleanup should consolidate them safely.
 5. Some Supabase advisor warnings remain for intentionally public checkout/order tracking security-definer RPC functions.
 
 ## Hostinger deployment settings
 
-- Install command: `npm ci`
+- Install command: `npm install`
 - Build command: `npm run build`
 - Output directory: `out`
 - Node version: 20+
@@ -49,5 +49,5 @@ NEXT_PUBLIC_ADMIN_EMAIL=<approved-admin-email>
 1. GitHub Actions should pass `typecheck` and `build`.
 2. Hostinger should serve the static export from `out`.
 3. Visit `/admin/signin` and sign in with an approved admin user.
-4. Visit `/admin/product-manager` and create/update a product.
+4. Visit `/admin/products` or `/admin/product-manager` and create/update a product.
 5. Confirm product changes appear on `/products` after Supabase realtime reload.
