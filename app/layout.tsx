@@ -7,6 +7,7 @@ import './product-detail-plus.css';
 import './enterprise-polish.css';
 import './product-card-polish.css';
 import './global-ui-shell.css';
+import './frontend-pro-polish.css';
 import './live-sync.css';
 
 export const metadata: Metadata = {
