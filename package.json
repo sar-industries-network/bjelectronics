@@ -1,6 +1,6 @@
 {
   "name": "bjelectronics-enterprise-next-supabase",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "private": true,
   "description": "BJ ELECTRONICS enterprise ecommerce frontend for Hostinger with Supabase backend.",
   "scripts": {
@@ -8,8 +8,10 @@
     "build": "next build",
     "postbuild": "node scripts/copy-hostinger-assets.mjs",
     "start": "npx serve@14 out -l 3000",
-    "lint": "next lint || echo \"Lint command is not required for this build\"",
-    "local:test": "npm run build"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run build",
+    "local:test": "npm run verify"
   },
   "dependencies": {
     "@next/env": "16.2.9",
