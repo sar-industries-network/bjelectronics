@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { GlobalRealtimeClient } from '@/components/global-realtime-client';
 import './globals.css';
 import './product-detail.css';
+import './live-sync.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bjelectronics.shop'),
