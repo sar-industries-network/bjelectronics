@@ -1,4 +1,5 @@
 import { HelpCircle, Mail, MapPin, Phone, ShieldCheck, Truck } from 'lucide-react';
+import { SupportCenterClient } from '@/components/support-center-client';
 
 const faqs = [
   ['How do I track my order?', 'Use the Track Order page with your BJ order number and phone number.'],
@@ -35,6 +36,7 @@ export default function Page() {
             <a className="btn-soft" href="/roadmap">View Roadmap</a>
           </aside>
         </section>
+        <SupportCenterClient />
       </section>
     </main>
   );
