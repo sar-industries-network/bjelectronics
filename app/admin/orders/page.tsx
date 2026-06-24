@@ -1,2 +1,1 @@
-import { EnterpriseApp } from '@/components/enterprise-app';
-export default function Page() { return <EnterpriseApp />; }
+export { AdminOrdersManager as default } from '@/components/admin-orders-manager';
