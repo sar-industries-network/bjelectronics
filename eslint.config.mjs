@@ -1,14 +1,15 @@
-import next from 'eslint-config-next';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { FlatCompat } from '@eslint/eslintrc';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const compat = new FlatCompat({ baseDirectory: __dirname });
 
 export default [
-  ...next,
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    ignores: [
-      '.next/**',
-      'out/**',
-      'node_modules/**',
-      'public/**'
-    ],
+    ignores: ['.next/**', 'out/**', 'node_modules/**', 'public/**'],
     rules: {
       '@next/next/no-img-element': 'off',
       'react/no-unescaped-entities': 'off'
