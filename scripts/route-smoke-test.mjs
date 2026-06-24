@@ -4,6 +4,8 @@ import path from 'node:path';
 const requiredRoutes = [
   'index.html',
   'admin/index.html',
+  'admin/dashboard/index.html',
+  'admin/support/index.html',
   'admin/products/index.html',
   'admin/product-manager/index.html',
   'admin/orders/index.html',
