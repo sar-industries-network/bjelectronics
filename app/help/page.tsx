@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { HelpCircle, Mail, MapPin, Phone, ShieldCheck, Truck } from 'lucide-react';
 import { SupportCenterClient } from '@/components/support-center-client';
 
@@ -42,6 +43,6 @@ export default function Page() {
   );
 }
 
-function InfoCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+function InfoCard({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-blue-50 text-brand-blue dark:bg-white/10">{icon}</span><h3 className="mt-4 font-black text-slate-950 dark:text-white">{title}</h3><p className="mt-2 text-sm font-semibold leading-6 text-slate-500 dark:text-slate-300">{text}</p></div>;
 }
