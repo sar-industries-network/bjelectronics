@@ -12,7 +12,13 @@ const entryFiles = new Set([
   'scripts/preflight.mjs',
   'scripts/route-smoke-test.mjs'
 ]);
+const forbiddenScanExempt = new Set([
+  'scripts/preflight.mjs',
+  'scripts/dead-import-scan.mjs'
+]);
+const forbiddenTokens = ['enterprise-app', 'admin-dashboard-pro', 'command-center-client'];
 const files = [];
+
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (ignoreDirs.has(entry.name)) continue;
@@ -36,13 +42,11 @@ function resolveImport(fromFile, spec) {
   return '__UNRESOLVED__';
 }
 
-const imports = new Map();
 const unresolved = [];
 const imported = new Set();
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const specs = [...text.matchAll(/import(?:[^'";]*?from\s*)?['"]([^'"]+)['"]/g)].map((m) => m[1]);
-  imports.set(file, specs);
   for (const spec of specs) {
     const resolved = resolveImport(file, spec);
     if (resolved === '__UNRESOLVED__') unresolved.push({ file, spec });
@@ -59,8 +63,9 @@ const likelyDead = files.filter((file) => {
 
 const forbiddenRefs = [];
 for (const file of files) {
+  if (forbiddenScanExempt.has(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
-  for (const token of ['enterprise-app', 'admin-dashboard-pro', 'command-center-client']) {
+  for (const token of forbiddenTokens) {
     if (text.includes(token)) forbiddenRefs.push({ file, token });
   }
 }
