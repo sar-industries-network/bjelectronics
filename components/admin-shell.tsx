@@ -1,8 +1,8 @@
 import React from 'react';
-import { Boxes, DatabaseZap, LayoutDashboard, Package, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
+import { Boxes, DatabaseZap, LayoutDashboard, Package, Palette, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
 
 type AdminShellProps = {
-  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings';
+  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit';
   children: React.ReactNode;
 };
 
@@ -12,6 +12,7 @@ const links = [
   { key: 'orders', href: '/admin/orders', label: 'Orders', icon: Boxes },
   { key: 'product-manager', href: '/admin/product-manager', label: 'Product Manager', icon: ShoppingBag },
   { key: 'platform', href: '/admin/platform', label: 'SaaS Platform', icon: DatabaseZap },
+  { key: 'ui-kit', href: '/admin/ui-kit', label: 'UI Kit', icon: Palette },
   { key: 'settings', href: '/admin/settings', label: 'Settings', icon: Settings },
 ] as const;
 
