@@ -19,7 +19,16 @@ const requiredFiles = [
   'components/pro-ui-kit.tsx',
   'components/pro-ui-showcase.tsx',
   'app/admin/ui-kit/page.tsx',
+  'app/order-success/[orderNo]/page.tsx',
   'lib/supabaseClient.ts',
+  'scripts/env-check.mjs',
+  'scripts/lock-consistency.mjs',
+  'scripts/css-audit.mjs',
+  'scripts/dead-import-scan.mjs',
+  'scripts/build-audit.mjs',
+  'scripts/functional-smoke.mjs',
+  'scripts/build-health-report.mjs',
+  'scripts/hostinger-zip.mjs',
   'scripts/route-smoke-test.mjs',
 ];
 
