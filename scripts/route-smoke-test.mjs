@@ -9,6 +9,7 @@ const requiredRoutes = [
   'admin/orders/index.html',
   'admin/settings/index.html',
   'admin/platform/index.html',
+  'admin/ui-kit/index.html',
   'admin/command-center/index.html',
   'products/index.html',
   'product/samsung-galaxy-a55-5g/index.html',
