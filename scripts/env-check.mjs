@@ -9,9 +9,10 @@ const required = [
   'NEXT_PUBLIC_ADMIN_EMAIL'
 ];
 
-const optional = ['NEXT_PUBLIC_ADMIN_ACCESS_CODE'];
+const forbidden = ['NEXT_PUBLIC_ADMIN_ACCESS_CODE'];
 const missing = required.filter((key) => !String(process.env[key] || '').trim());
 const present = required.filter((key) => String(process.env[key] || '').trim());
+const forbiddenPresent = forbidden.filter((key) => String(process.env[key] || '').trim());
 
 fs.mkdirSync('reports', { recursive: true });
 const lines = [
@@ -23,10 +24,15 @@ const lines = [
   '',
   ...required.map((key) => `- ${key}: ${process.env[key] ? 'present' : 'missing'}`),
   '',
-  'Optional:',
-  ...optional.map((key) => `- ${key}: ${process.env[key] ? 'present' : 'not set'}`)
+  'Forbidden public variables:',
+  ...forbidden.map((key) => `- ${key}: ${process.env[key] ? 'remove immediately' : 'not set'}`)
 ];
 fs.writeFileSync('reports/env-check.md', `${lines.join('\n')}\n`);
+
+if (forbiddenPresent.length) {
+  console.error(`Forbidden public environment variables must be removed: ${forbiddenPresent.join(', ')}`);
+  process.exit(1);
+}
 
 if (missing.length) {
   const message = `Missing required environment variables: ${missing.join(', ')}`;
