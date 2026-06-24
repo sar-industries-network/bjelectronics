@@ -10,11 +10,15 @@ const requiredFiles = [
   'app/design-system.css',
   'app/responsive-system.css',
   'app/store-template-polish.css',
+  'app/pro-ui-kit.css',
   'components/storefront-app.tsx',
   'components/admin-shell.tsx',
   'components/admin-orders-manager.tsx',
   'components/admin-settings-manager.tsx',
   'components/pro-product-detail-live.tsx',
+  'components/pro-ui-kit.tsx',
+  'components/pro-ui-showcase.tsx',
+  'app/admin/ui-kit/page.tsx',
   'lib/supabaseClient.ts',
   'scripts/route-smoke-test.mjs',
 ];
@@ -49,7 +53,7 @@ if (nodeMajor < 20) {
 }
 
 const uiPolish = fs.readFileSync('app/ui-polish.css', 'utf8');
-for (const requiredImport of ['./design-system.css', './responsive-system.css', './product-detail-minimal.css', './store-template-polish.css']) {
+for (const requiredImport of ['./design-system.css', './pro-ui-kit.css', './responsive-system.css', './product-detail-minimal.css', './store-template-polish.css']) {
   if (!uiPolish.includes(requiredImport)) {
     console.error(`Preflight failed. app/ui-polish.css is missing ${requiredImport}.`);
     process.exit(1);
