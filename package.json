@@ -8,10 +8,12 @@
     "build": "next build",
     "postbuild": "node scripts/copy-hostinger-assets.mjs",
     "start": "npx serve@14 out -l 3000",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "preflight": "node scripts/preflight.mjs",
     "smoke:routes": "node scripts/route-smoke-test.mjs",
-    "verify": "npm run typecheck && npm run build && npm run smoke:routes",
+    "verify": "npm run preflight && npm run typecheck && npm run build && npm run smoke:routes",
+    "quality": "npm run preflight && npm run lint && npm run typecheck",
     "local:test": "npm run verify"
   },
   "dependencies": {
