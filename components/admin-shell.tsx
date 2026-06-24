@@ -5,7 +5,7 @@ import { Boxes, DatabaseZap, LayoutDashboard, LogOut, Map, Package, Palette, Set
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
 type AdminShellProps = {
-  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit';
+  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit' | 'roadmap' | 'feature-center';
   children: React.ReactNode;
 };
 
