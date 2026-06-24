@@ -42,7 +42,7 @@ A reusable admin shell was added:
 - `components/admin-shell.tsx`
 - `app/admin-shell.css`
 
-The realtime operations dashboard and SaaS platform dashboard now use this shared shell, which removes duplicated sidebar/layout code from those features.
+The realtime operations dashboard, SaaS platform dashboard, orders route and settings route now use dedicated admin modules instead of the legacy all-in-one shell.
 
 ### Storefront app split
 
@@ -52,11 +52,11 @@ A dedicated storefront shell was added:
 - `components/storefront-core.tsx`
 - `components/storefront-products.tsx`
 
-This extracts the active customer storefront away from `components/enterprise-app.tsx` for home, products, cart, checkout, account, wishlist, categories and tracking routes.
+This extracts the active customer storefront away from the old enterprise shell for home, products, cart, checkout, account, wishlist, categories and tracking routes.
 
 ### Storefront route migration
 
-The following storefront routes now resolve through the split storefront app instead of the legacy enterprise shell:
+The following storefront routes now resolve through the split storefront app:
 
 - `/`
 - `/products`
@@ -67,32 +67,56 @@ The following storefront routes now resolve through the split storefront app ins
 - `/wishlist`
 - `/account`
 
-### Admin products route cleanup
+### Admin route migration
 
-`/admin/products` now reuses the advanced product manager route instead of rendering the legacy shell separately.
+The following admin routes now resolve through focused modules:
+
+- `/admin` -> realtime operations dashboard
+- `/admin/products` -> advanced product manager
+- `/admin/product-manager` -> advanced product manager
+- `/admin/orders` -> dedicated orders manager
+- `/admin/settings` -> dedicated settings overview
+- `/admin/platform` -> SaaS platform dashboard
+
+### Legacy shell removal
+
+The old all-in-one file was removed after storefront/admin route migration:
+
+- removed: `components/enterprise-app.tsx`
 
 ### Route smoke tests
 
-Build-time static route smoke checks were added:
+Build-time static route smoke checks were added and expanded:
 
 - `scripts/route-smoke-test.mjs`
 - `npm run smoke:routes`
 
-The GitHub Actions workflow now runs the smoke checks after the static build.
+The smoke test now covers storefront, product detail, admin products, admin orders, admin settings, admin platform and command center routes.
+
+### Preflight duplicate/dead-file guard
+
+Production preflight now fails if known legacy duplicate/dead files return:
+
+- `components/enterprise-app.tsx`
+- `app/product-detail.css`
+- `app/product-detail-plus.css`
+- `app/product-detail-fixes.css`
+- `components/admin-dashboard-pro.tsx`
+- `components/command-center-client.tsx`
 
 ## Kept intentionally
 
-### `components/enterprise-app.tsx`
-
-This file is still retained as a legacy fallback/admin shell for routes that have not yet been fully migrated. It should only be deleted after every route import is confirmed to no longer reference it and a production build passes.
-
 ### Route wrapper files
 
-Static export on Hostinger benefits from route wrapper files. These were not deleted unless they were clearly obsolete.
+Static export on Hostinger benefits from route wrapper files. These are kept when they map cleanly to focused modules.
 
-## Remaining safe next refactor
+### `lib/storage.ts`
+
+This file is intentionally kept as a compatibility re-export to `lib/data-layer.js`, because active storefront code imports `@/lib/storage`.
+
+## Remaining optional refactor
 
 1. Move cart and checkout internals into a dedicated storefront commerce module.
-2. Move product-manager to the reusable admin shell as the next safe UI refactor.
-3. Remove legacy `components/enterprise-app.tsx` only after code search confirms zero route references and build passes.
-4. Add deeper route smoke checks for dynamic product/category routes when stable seed data is finalized.
+2. Add editable settings form after admin save flow is visually QA-tested.
+3. Add deeper route smoke checks for dynamic product/category routes when stable seed data is finalized.
+4. Keep deleting files only after preflight and route smoke checks prove they are not active.
