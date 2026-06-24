@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { CheckCircle2, ClipboardList, Rocket, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Rocket, ShieldCheck, Sparkles } from 'lucide-react';
 import { AdminShell } from './admin-shell';
 import { ProActionBar, ProBadge, ProButton, ProCard, ProFilterChips, ProMiniBarChart, ProSearchBar, ProStatCard } from './pro-ui-kit';
 import { FeatureStatus, featureRoadmap, roadmapStats } from '@/lib/feature-registry';
