@@ -20,8 +20,10 @@ const requiredFiles = [
   'components/pro-ui-showcase.tsx',
   'app/admin/ui-kit/page.tsx',
   'app/order-success/[orderNo]/page.tsx',
+  'lib/client-security.ts',
   'lib/supabaseClient.ts',
   'scripts/env-check.mjs',
+  'scripts/secret-scan.mjs',
   'scripts/lock-consistency.mjs',
   'scripts/css-audit.mjs',
   'scripts/dead-import-scan.mjs',
@@ -33,6 +35,7 @@ const requiredFiles = [
 ];
 
 const forbiddenFiles = [
+  'middleware.ts',
   'components/enterprise-app.tsx',
   'app/product-detail.css',
   'app/product-detail-plus.css',
