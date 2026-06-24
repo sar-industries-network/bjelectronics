@@ -7,19 +7,46 @@ import { loadState, localCart, localWishlist, setLocalCart, setLocalWishlist } f
 import type { Product } from '@/lib/types';
 
 type Tab = 'overview' | 'specification' | 'delivery' | 'reviews' | 'faq';
-type GalleryItem = { id: string; label: string; icon: string };
-
+type GalleryItem = { id: string; label: string; src: string; kind: 'image' | 'emoji' | 'video' };
 type OptionGroupProps = { title: string; values: string[]; selected: string; setSelected: (value: string) => void };
+
+type ProductWithMedia = Product & { specs: Record<string, unknown> };
 
 const cleanLabel = (value: string) => value.split('-').filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 const unique = (values: string[]) => Array.from(new Set(values.filter(Boolean)));
-const galleryFor = (product: Product): GalleryItem[] => [
-  { id: 'front', label: 'Front', icon: product.image },
-  { id: 'angle', label: 'Angle', icon: product.image },
-  { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
-  { id: 'box', label: 'Box', icon: '📦' },
-  { id: 'video', label: 'Video', icon: '▶️' },
-];
+const isUrl = (value: string) => /^(https?:\/\/|\/|data:image\/)/i.test(String(value || '').trim());
+const isVideo = (value: string) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(value) || /(youtube\.com|youtu\.be|vimeo\.com)/i.test(value);
+const specValue = (product: ProductWithMedia, key: string) => product.specs?.[key];
+const asText = (value: unknown, fallback = '') => typeof value === 'string' && value.trim() ? value.trim() : fallback;
+const asStringList = (value: unknown) => {
+  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
+  if (typeof value === 'string') return value.split(/\n|,/).map((item) => item.trim()).filter(Boolean);
+  return [];
+};
+
+const productWithMedia = (product: Product): ProductWithMedia => ({ ...product, specs: (product.specs || {}) as Record<string, unknown> });
+
+function galleryFor(productInput: Product): GalleryItem[] {
+  const product = productWithMedia(productInput);
+  const items: GalleryItem[] = [];
+  const main = product.image || '📦';
+  items.push({ id: 'main', label: 'Main', src: main, kind: isUrl(main) ? 'image' : 'emoji' });
+
+  const gallery = asStringList(specValue(product, 'gallery'));
+  gallery.forEach((src, index) => {
+    if (!items.some((item) => item.src === src)) {
+      items.push({ id: `gallery-${index}`, label: `Image ${index + 1}`, src, kind: isUrl(src) ? 'image' : 'emoji' });
+    }
+  });
+
+  const video = asText(specValue(product, 'video'));
+  if (video) items.push({ id: 'video', label: 'Video', src: video, kind: 'video' });
+
+  items.push({ id: 'lifestyle', label: 'Lifestyle', src: '✨', kind: 'emoji' });
+  items.push({ id: 'box', label: 'Box', src: '📦', kind: 'emoji' });
+  return items.slice(0, 8);
+}
+
 const variantPrice = (variant: string) => variant === 'Premium Bundle' ? 1200 : variant === 'Extended Pack' ? 2200 : 0;
 const warrantyPrice = (warranty: string) => warranty === '1 Year Extended' ? 499 : warranty === '2 Years Care+' ? 899 : 0;
 
@@ -28,7 +55,7 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
   const [product, setProduct] = useState<Product>(fallback);
   const [related, setRelated] = useState<Product[]>(seedProducts.filter((item) => item.id !== fallback.id).slice(0, 4));
   const gallery = useMemo(() => galleryFor(product), [product]);
-  const [activeImage, setActiveImage] = useState<GalleryItem>(gallery[0]);
+  const [activeImage, setActiveImage] = useState<GalleryItem>(galleryFor(fallback)[0]);
   const [tab, setTab] = useState<Tab>('overview');
   const [qty, setQty] = useState(1);
   const [copied, setCopied] = useState(false);
@@ -38,7 +65,7 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
   const [compare, setCompare] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [selectedColor, setSelectedColor] = useState('Graphite');
-  const [selectedVariant, setSelectedVariant] = useState(Object.values(product.specs)[0] || 'Standard');
+  const [selectedVariant, setSelectedVariant] = useState(asText(Object.values(productWithMedia(product).specs)[0], 'Standard'));
   const [selectedWarranty, setSelectedWarranty] = useState('Official Warranty');
 
   useEffect(() => {
@@ -46,16 +73,18 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
     loadState().then((state) => {
       if (!mounted) return;
       const liveProduct = state.products.find((item) => item.slug === slug) || fallback;
+      const liveMedia = galleryFor(liveProduct);
       setProduct(liveProduct);
-      setRelated(state.products.filter((item) => item.id !== liveProduct.id).slice(0, 4));
-      setSelectedVariant(Object.values(liveProduct.specs)[0] || 'Standard');
-      setActiveImage(galleryFor(liveProduct)[0]);
+      setRelated(state.products.filter((item) => item.id !== liveProduct.id && item.active).slice(0, 4));
+      setSelectedVariant(asText(Object.values(productWithMedia(liveProduct).specs)[0], 'Standard'));
+      setActiveImage(liveMedia[0]);
       setWishlisted(localWishlist().includes(liveProduct.id));
     });
     return () => { mounted = false; };
   }, [slug]);
 
-  const specs = useMemo(() => Object.entries(product.specs || {}), [product.specs]);
+  const mediaProduct = productWithMedia(product);
+  const specs = useMemo(() => Object.entries(mediaProduct.specs || {}).filter(([key]) => !['gallery', 'video'].includes(key)), [mediaProduct.specs]);
   const maxQty = Math.max(1, product.stock || 1);
   const finalPrice = product.price + variantPrice(selectedVariant) + warrantyPrice(selectedWarranty);
   const discount = Math.max(0, product.compare_at_price - product.price);
@@ -88,6 +117,7 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
       ? cart.map((item) => item.productId === product.id ? { ...item, quantity: Math.min(maxQty, item.quantity + qty) } : item)
       : [...cart, { productId: product.id, quantity: qty }];
     setLocalCart(next);
+    window.dispatchEvent(new CustomEvent('bj-cart-updated', { detail: next }));
     flash(checkout ? 'Added to cart. Opening checkout...' : 'Added to cart successfully');
     if (checkout) setTimeout(() => { window.location.href = '/checkout'; }, 350);
   };
@@ -96,12 +126,13 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
     const current = localWishlist();
     const next = current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id];
     setLocalWishlist(next);
+    window.dispatchEvent(new CustomEvent('bj-wishlist-updated', { detail: next }));
     setWishlisted(next.includes(product.id));
     flash(next.includes(product.id) ? 'Added to wishlist' : 'Removed from wishlist');
   };
 
   const copyShareLink = async (url: string) => {
-    const nav = navigator as any;
+    const nav = navigator as Navigator & { clipboard?: { writeText?: (text: string) => Promise<void> } };
     if (typeof nav.clipboard?.writeText === 'function') {
       await nav.clipboard.writeText(url);
       return;
@@ -119,7 +150,7 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
 
   const share = async () => {
     const url = window.location.href;
-    const nav = navigator as any;
+    const nav = navigator as Navigator & { share?: (data: ShareData) => Promise<void> };
     try {
       if (typeof nav.share === 'function') {
         await nav.share({ title: product.name, text: product.description, url });
@@ -141,11 +172,11 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
       <section className="pdp-shell">
         <div className="pdp-gallery card">
           <div className="pdp-main-media product-visual">
-            {activeImage.id === 'video' ? <div className="pdp-video-card"><PlayCircle size={72}/><h3>Product overview video</h3><p>Design, features, warranty, unboxing and delivery highlights.</p><button type="button" onClick={() => flash('Video preview mode enabled')}>Play Preview</button></div> : <div className="pdp-emoji-preview">{activeImage.icon}</div>}
+            <ProductMedia item={activeImage} productName={product.name} />
             <span className="pdp-sale-badge">-{product.discount_percent}% OFF</span>
             <span className="pdp-live-badge">{isLowStock ? 'Low stock' : 'Live stock'}: {product.stock}</span>
           </div>
-          <div className="pdp-thumbs">{gallery.map((item) => <button type="button" key={item.id} onClick={() => setActiveImage(item)} className={activeImage.id === item.id ? 'active' : ''} aria-pressed={activeImage.id === item.id}><span>{item.icon}</span><small>{item.label}</small></button>)}</div>
+          <div className="pdp-thumbs">{gallery.map((item) => <button type="button" key={item.id} onClick={() => setActiveImage(item)} className={activeImage.id === item.id ? 'active' : ''} aria-pressed={activeImage.id === item.id}><ThumbMedia item={item}/><small>{item.label}</small></button>)}</div>
           <div className="pdp-gallery-tools"><button type="button" onClick={share}><Share2 size={16}/> Share</button><button type="button" onClick={() => setCompare(!compare)} aria-pressed={compare}>{compare ? <CheckCircle2 size={16}/> : <Plus size={16}/>} Compare</button><button type="button" onClick={toggleWishlist} aria-pressed={wishlisted}><Heart size={16} fill={wishlisted ? 'currentColor' : 'none'}/> Wishlist</button></div>
         </div>
 
@@ -158,7 +189,7 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
           <div className="pdp-meta-grid"><Meta title="Category" value={cleanLabel(product.category_slug)}/><Meta title="Brand" value={product.brand}/><Meta title="Warranty" value={selectedWarranty}/><Meta title="Availability" value={isOutOfStock ? 'Out of stock' : 'Ready to order'}/></div>
           <div className="pdp-offers"><Offer title="Bank Offer" text="Up to 10% instant discount on selected bank cards"/><Offer title="EMI Available" text={`0% EMI from ${money(monthly)}/month`}/><Offer title="Member Deal" text="Free delivery on selected flash deals"/></div>
 
-          <div className="pdp-options"><OptionGroup title="Color" values={['Graphite', 'Blue', 'Silver']} selected={selectedColor} setSelected={setSelectedColor}/><OptionGroup title="Variant" values={[Object.values(product.specs)[0] || 'Standard', 'Premium Bundle', 'Extended Pack']} selected={selectedVariant} setSelected={setSelectedVariant}/><OptionGroup title="Warranty" values={['Official Warranty', '1 Year Extended', '2 Years Care+']} selected={selectedWarranty} setSelected={setSelectedWarranty}/></div>
+          <div className="pdp-options"><OptionGroup title="Color" values={['Graphite', 'Blue', 'Silver']} selected={selectedColor} setSelected={setSelectedColor}/><OptionGroup title="Variant" values={[selectedVariant, 'Premium Bundle', 'Extended Pack']} selected={selectedVariant} setSelected={setSelectedVariant}/><OptionGroup title="Warranty" values={['Official Warranty', '1 Year Extended', '2 Years Care+']} selected={selectedWarranty} setSelected={setSelectedWarranty}/></div>
           <div className="pdp-config-summary"><b>Selected:</b><span>{selectedColor}</span><span>{selectedVariant}</span><span>{selectedWarranty}</span></div>
           {compare && <div className="pdp-compare-panel"><b>Compare Ready</b><span>{product.name}</span><span>{money(finalPrice)}</span><span>{product.stock} stock</span></div>}
 
@@ -170,14 +201,29 @@ export function LiveProfessionalProductDetail({ slug }: { slug: string }) {
         </div>
       </section>
 
-      <section className="pdp-tabs card"><div className="pdp-tab-head">{(['overview','specification','delivery','reviews','faq'] as Tab[]).map((item) => <button type="button" key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>{item}</button>)}</div>{tab === 'overview' && <div className="pdp-tab-body"><h2>Product Details</h2><p>{product.description}</p><div className="pdp-highlights">{highlightItems.map((item) => <span key={item}>✓ {item}</span>)}</div><ul><li>Professional quality checked before dispatch.</li><li>Variation summary: {selectedColor}, {selectedVariant}, {selectedWarranty}.</li><li>Supports COD, bKash, Nagad and card payment labels.</li></ul></div>}{tab === 'specification' && <div className="pdp-spec-grid">{specs.map(([key, value]) => <div key={key}><span>{key}</span><b>{value}</b></div>)}<div><span>Brand</span><b>{product.brand}</b></div><div><span>Category</span><b>{cleanLabel(product.category_slug)}</b></div><div><span>Stock</span><b>{product.stock}</b></div><div><span>Selected Color</span><b>{selectedColor}</b></div><div><span>Selected Variant</span><b>{selectedVariant}</b></div><div><span>Selected Warranty</span><b>{selectedWarranty}</b></div></div>}{tab === 'delivery' && <div className="pdp-tab-body"><h2>Delivery & Return Information</h2><p>{deliveryText}. Delivery fee is calculated during checkout. Products are packed securely and checked before dispatch.</p></div>}{tab === 'reviews' && <div className="pdp-review-grid"><Review name="Verified Buyer" text="Good packaging, fast delivery and product matched the description."/><Review name="BJ Customer" text="Clear warranty information and responsive support."/></div>}{tab === 'faq' && <div className="pdp-faq"><FAQ q="Is this product official?" a="Yes, BJ ELECTRONICS lists products with official warranty information where available."/><FAQ q="Can I buy with cash on delivery?" a="Yes, COD is supported along with bKash, Nagad and card labels."/><FAQ q="Can I return the item?" a="Return and replacement are handled under store and brand policy."/></div>}</section>
+      <section className="pdp-tabs card"><div className="pdp-tab-head">{(['overview','specification','delivery','reviews','faq'] as Tab[]).map((item) => <button type="button" key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>{item}</button>)}</div>{tab === 'overview' && <div className="pdp-tab-body"><h2>Product Details</h2><p>{product.description}</p><div className="pdp-highlights">{highlightItems.map((item) => <span key={item}>✓ {item}</span>)}</div><ul><li>Professional quality checked before dispatch.</li><li>Variation summary: {selectedColor}, {selectedVariant}, {selectedWarranty}.</li><li>Supports COD, bKash, Nagad and card payment labels.</li></ul></div>}{tab === 'specification' && <div className="pdp-spec-grid">{specs.map(([key, value]) => <div key={key}><span>{key}</span><b>{String(value)}</b></div>)}<div><span>Brand</span><b>{product.brand}</b></div><div><span>Category</span><b>{cleanLabel(product.category_slug)}</b></div><div><span>Stock</span><b>{product.stock}</b></div></div>}{tab === 'delivery' && <div className="pdp-tab-body"><h2>Delivery & Warranty</h2><p>{deliveryText}. Every order is inspected before dispatch. Official warranty support is available from BJ ELECTRONICS.</p></div>}{tab === 'reviews' && <div className="pdp-review-grid"><Review name="Verified Customer" text="Excellent product, fast delivery and clean packaging."/><Review name="BJ Member" text="Good price and smooth warranty support."/></div>}{tab === 'faq' && <div className="pdp-faq"><FAQ q="Is this product original?" a="Yes, this page highlights official warranty and verified product details."/><FAQ q="Can I pay cash on delivery?" a="Yes, COD is available for supported areas."/><FAQ q="Can I return the product?" a="Eligible products support replacement according to the store policy."/></div>}</section>
 
-      <section className="pdp-related"><h2>Related Products</h2><div className="pdp-related-grid">{related.map((item) => <a key={item.id} href={`/product/${item.slug}`} className="card"><div>{item.image}</div><b>{item.name}</b><span>{money(item.price)}</span></a>)}</div></section>
+      <section className="pdp-related"><h2>Related Products</h2><div className="pdp-related-grid">{related.map((item) => <a key={item.id} href={`/product/${item.slug}`} className="card"><div><RelatedMedia product={item}/></div><b>{item.name}</b><span>{money(item.price)}</span></a>)}</div></section>
       <div className="pdp-mobile-action"><div><b>{money(finalPrice)}</b><span>{isOutOfStock ? 'Out of stock' : 'Ready to order'}</span></div><button type="button" onClick={() => addToCart(true)} disabled={isOutOfStock}>Buy Now</button></div>
     </main>
   );
 }
 
+function ProductMedia({ item, productName }: { item: GalleryItem; productName: string }) {
+  if (item.kind === 'video') {
+    return <div className="pdp-video-card"><PlayCircle size={72}/><h3>Product overview video</h3><p>Design, features, warranty, unboxing and delivery highlights.</p>{isUrl(item.src) ? <a href={item.src} target="_blank" rel="noreferrer">Open Video</a> : <button type="button">Play Preview</button>}</div>;
+  }
+  if (item.kind === 'image' && isUrl(item.src)) return <img className="pdp-media-img" src={item.src} alt={productName} loading="eager"/>;
+  return <div className="pdp-emoji-preview">{item.src || '📦'}</div>;
+}
+function ThumbMedia({ item }: { item: GalleryItem }) {
+  if (item.kind === 'image' && isUrl(item.src)) return <img className="pdp-thumb-img" src={item.src} alt={item.label} loading="lazy"/>;
+  if (item.kind === 'video') return <span>▶️</span>;
+  return <span>{item.src || '📦'}</span>;
+}
+function RelatedMedia({ product }: { product: Product }) {
+  return isUrl(product.image) ? <img className="pdp-related-img" src={product.image} alt={product.name} loading="lazy"/> : <span>{product.image || '📦'}</span>;
+}
 function OptionGroup({ title, values, selected, setSelected }: OptionGroupProps) { return <div><h3>{title}</h3><div>{unique(values).map((value) => <button type="button" key={value} className={selected === value ? 'active' : ''} onClick={() => setSelected(value)}>{value}</button>)}</div></div>; }
 function Meta({ title, value }: { title: string; value: string }) { return <div><span>{title}</span><b>{value}</b></div>; }
 function Offer({ title, text }: { title: string; text: string }) { return <div><b>{title}</b><span>{text}</span></div>; }
