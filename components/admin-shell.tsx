@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Boxes, DatabaseZap, LayoutDashboard, LogOut, Map, Package, Palette, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
+import { Boxes, DatabaseZap, LayoutDashboard, LifeBuoy, LogOut, Map, Package, Palette, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
 type AdminShellProps = {
-  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit' | 'roadmap' | 'feature-center';
+  active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit' | 'roadmap' | 'feature-center' | 'support';
   children: React.ReactNode;
 };
 
@@ -13,6 +13,7 @@ const links = [
   { key: 'overview', href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { key: 'products', href: '/admin/products', label: 'Products', icon: Package },
   { key: 'orders', href: '/admin/orders', label: 'Orders', icon: Boxes },
+  { key: 'support', href: '/admin/support', label: 'Support', icon: LifeBuoy },
   { key: 'product-manager', href: '/admin/product-manager', label: 'Product Manager', icon: ShoppingBag },
   { key: 'platform', href: '/admin/platform', label: 'SaaS Platform', icon: DatabaseZap },
   { key: 'ui-kit', href: '/admin/ui-kit', label: 'UI Kit', icon: Palette },
