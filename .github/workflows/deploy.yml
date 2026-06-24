@@ -34,6 +34,9 @@ jobs:
       - name: Validate environment
         run: npm run env:check:strict
 
+      - name: Secret scan
+        run: npm run scan:secrets
+
       - name: Check package lock consistency
         run: npm run lock:check
 
