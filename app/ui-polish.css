@@ -2,6 +2,7 @@
    Source layers are imported through one stable root for predictable cascade order. */
 @import './product-detail-merged.css';
 @import './product-media.css';
+@import './product-detail-minimal.css';
 @import './enterprise-polish.css';
 @import './product-card-polish.css';
 @import './global-ui-shell.css';
