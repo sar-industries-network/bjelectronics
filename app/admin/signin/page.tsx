@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
+import { rateLimitClient, SECURITY_LIMITS, validateClientSubmission } from '@/lib/client-security';
 
 export default function AdminSigninPage() {
   const router = useRouter();
@@ -26,8 +27,13 @@ export default function AdminSigninPage() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setBusy(true);
     setStatus('');
+    try { validateClientSubmission('admin sign in'); } catch (error) { setStatus(error instanceof Error ? error.message : 'Request blocked.'); return; }
+    if (!rateLimitClient('admin-signin', SECURITY_LIMITS.adminSignin.limit, SECURITY_LIMITS.adminSignin.windowMs)) {
+      setStatus('Too many sign-in attempts. Please wait before trying again.');
+      return;
+    }
+    setBusy(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/admin/signin` },
@@ -44,7 +50,7 @@ export default function AdminSigninPage() {
         <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-300">Use an approved BJ ELECTRONICS admin email to receive a secure sign-in link.</p>
         {!supabaseClientConfigured && <p className="mt-4 rounded-2xl bg-red-50 p-3 text-sm font-bold text-brand-red">Supabase env variables are missing.</p>}
         <label className="mt-5 block text-sm font-black text-slate-700 dark:text-slate-200">Admin Email</label>
-        <input className="input mt-2 w-full" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required />
+        <input className="input mt-2 w-full" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" autoComplete="email" required />
         {status && <p className="mt-4 rounded-2xl bg-blue-50 p-3 text-sm font-bold text-brand-blue">{status}</p>}
         <button className="btn mt-6 w-full" disabled={busy}>{busy ? 'Sending...' : 'Send Secure Link'}</button>
       </form>
