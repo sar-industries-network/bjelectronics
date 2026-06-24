@@ -26,16 +26,19 @@ Status: Beta
 Added in this upgrade:
 
 - feature registry in `lib/feature-registry.ts`
-- roadmap component resources
-- public `/roadmap` route foundation
+- roadmap resources
+- public `/roadmap` route
 - public `/help` support center
-- admin sidebar link to roadmap
+- backend `support_tickets` table with RLS
+- backend `feature_requests` table with RLS
+- functional support ticket form
+- functional feature request form
+- form throttling and client submission validation
 
-Next backend expansion:
+Next expansion:
 
-- support ticket table
-- feature request table
-- admin support ticket management
+- admin support response workflow
+- ticket assignment and internal notes
 - customer request status tracking
 
 ## Phase 3 — Inventory Intelligence
@@ -90,6 +93,8 @@ Required manual checks:
 - Supabase Edge Function runtime variables available
 - admin sign-in tested
 - checkout tested
+- support form tested
+- feature request form tested
 - product detail tested
 - route smoke passed
 - build artifact generated
