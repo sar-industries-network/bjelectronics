@@ -10,6 +10,17 @@ Added a global design system layer:
 
 It defines shared tokens for colors, borders, radii, shadows, focus rings, containers, cards, buttons, inputs, badges, tables, status chips, storefront, product cards, admin shells and accessibility motion preferences.
 
+### Professional UI kit resources
+
+Added reusable UI resources:
+
+- `components/pro-ui-kit.tsx`
+- `components/pro-ui-showcase.tsx`
+- `app/pro-ui-kit.css`
+- `app/admin/ui-kit/page.tsx`
+
+The kit includes professional buttons, badges, cards, fields, inputs, text areas, selects, search bars, action bars, stats, tabs, accordions, dropdowns, data tables, pagination, empty states, detail lists, filter chips and mini charts.
+
 ### Store template polish layer
 
 Added a dedicated storefront template layer:
@@ -32,15 +43,7 @@ Added a dedicated responsive layer:
 
 - `app/responsive-system.css`
 
-It improves scaling for:
-
-- small phones
-- regular phones
-- tablets
-- laptops
-- desktops
-- large screens
-- touch-only devices
+It improves scaling for phones, tablets, laptops, desktops, large screens and touch devices.
 
 ### UI polish cascade
 
@@ -48,7 +51,7 @@ Updated:
 
 - `app/ui-polish.css`
 
-The full polish cascade now loads the design system first, then product detail, media, minimalist product detail polish, storefront polish, admin shell polish, dashboard polish, responsive polish and the final store template polish.
+The full polish cascade now loads the design system first, then the UI kit, product detail, media, minimalist product detail polish, storefront polish, admin shell polish, dashboard polish, responsive polish and the final store template polish.
 
 ### Tailwind design token upgrade
 
@@ -56,13 +59,7 @@ Updated:
 
 - `tailwind.config.ts`
 
-Added:
-
-- wider screen scale including `xs` and `3xl`
-- refined brand colors
-- professional font stack
-- soft/premium shadows
-- reusable spacing token for safe-area support
+Added wider screens, refined brand colors, professional font stack, soft shadows and safe-area spacing support.
 
 ### App/PWA essentials
 
@@ -74,7 +71,7 @@ Updated:
 
 - `app/layout.tsx`
 
-The app now has better application metadata, mobile viewport support, theme colors, Apple web-app support and format detection.
+The app now has better metadata, mobile viewport support, theme colors, Apple web-app support and format detection.
 
 ### Production validation tools
 
@@ -94,7 +91,7 @@ New commands:
 - `npm run quality`
 - `npm run verify`
 
-The CI workflow now runs production preflight before typecheck/build/smoke checks, and preflight now requires the final store template polish layer.
+The CI workflow now runs production preflight before typecheck/build/smoke checks, and preflight now requires the final store template polish layer and professional UI kit resources.
 
 ## Current verification status
 
