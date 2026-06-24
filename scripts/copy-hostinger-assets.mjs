@@ -28,30 +28,62 @@ function copyDirIfExists(source, destination) {
   return true;
 }
 
+function productionHost() {
+  try {
+    const site = process.env.NEXT_PUBLIC_SITE_URL || '';
+    if (!site) return '';
+    return new URL(site).host.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
 function writeHostingerSecurityHeaders() {
+  const host = productionHost();
+  const canonicalHostRules = host ? [
+    `RewriteCond %{HTTP_HOST} ^www\\.${host.replace(/\./g, '\\.')} [NC]`,
+    `RewriteRule ^ https://${host}%{REQUEST_URI} [L,R=301]`
+  ] : [];
+
   const csp = [
     "default-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "frame-ancestors 'none'",
     "img-src 'self' data: https:",
+    "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co"
   ].join('; ');
+
   const content = [
-    'Options -MultiViews',
+    'Options -Indexes -MultiViews',
     '<IfModule mod_headers.c>',
     `Header always set Content-Security-Policy "${csp}"`,
     'Header always set X-Content-Type-Options "nosniff"',
     'Header always set X-Frame-Options "DENY"',
     'Header always set Referrer-Policy "strict-origin-when-cross-origin"',
     'Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"',
+    'Header always set X-Permitted-Cross-Domain-Policies "none"',
+    '</IfModule>',
+    '<IfModule mod_expires.c>',
+    'ExpiresActive On',
+    'ExpiresByType text/html "access plus 0 seconds"',
+    'ExpiresByType text/css "access plus 7 days"',
+    'ExpiresByType application/javascript "access plus 7 days"',
+    'ExpiresByType image/png "access plus 30 days"',
+    'ExpiresByType image/jpeg "access plus 30 days"',
+    'ExpiresByType image/webp "access plus 30 days"',
     '</IfModule>',
     '<IfModule mod_rewrite.c>',
     'RewriteEngine On',
     'RewriteCond %{HTTPS} !=on',
     'RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]',
+    ...canonicalHostRules,
+    'RewriteRule ^admin/(customers|inventory|payments|promotions|reports|theme-settings|users)/?$ /admin/dashboard/ [L,R=302]',
+    'RewriteRule ^admin/categories/?$ /admin/products/ [L,R=302]',
+    'RewriteRule ^admin/login/?$ /admin/signin/ [L,R=302]',
     'RewriteCond %{REQUEST_FILENAME} !-f',
     'RewriteCond %{REQUEST_FILENAME} !-d',
     'RewriteRule ^ index.html [QSA,L]',
@@ -121,7 +153,7 @@ try {
     console.log('No .htaccess found in hostinger folder');
   }
   writeHostingerSecurityHeaders();
-  console.log('Static security headers written to out/.htaccess');
+  console.log('Static security headers, canonical redirects and route aliases written to out/.htaccess');
 
   if (!existsSync('out/index.html')) {
     console.error('ERROR: out/index.html is missing after postbuild.');
