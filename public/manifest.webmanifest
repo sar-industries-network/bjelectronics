@@ -1,0 +1,21 @@
+{
+  "name": "BJ ELECTRONICS",
+  "short_name": "BJ Electronics",
+  "description": "Premium online electronics store and admin dashboard for Bangladesh customers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "business", "productivity"],
+  "lang": "en"
+}
