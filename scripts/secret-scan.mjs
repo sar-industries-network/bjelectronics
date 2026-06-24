@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ignoreDirs = new Set(['node_modules', '.next', 'out', '.git', 'reports']);
+const ignoreFiles = new Set(['scripts/secret-scan.mjs']);
 const findings = [];
 const patterns = [
   { name: 'supabase-project-url', regex: /https:\/\/[a-z0-9]{20}\.supabase\.co/gi },
@@ -17,6 +18,7 @@ function walk(dir) {
     if (entry.isDirectory()) walk(full);
     else {
       const rel = path.relative(process.cwd(), full).replace(/\\/g, '/');
+      if (ignoreFiles.has(rel)) continue;
       if (['.png', '.jpg', '.jpeg', '.webp', '.zip', '.pdf'].some((ext) => rel.endsWith(ext))) continue;
       const text = fs.readFileSync(full, 'utf8');
       for (const pattern of patterns) {
