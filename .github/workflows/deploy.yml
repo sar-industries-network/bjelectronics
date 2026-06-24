@@ -26,6 +26,18 @@ jobs:
       - name: Production preflight
         run: npm run preflight
 
+      - name: Check package lock consistency
+        run: npm run lock:check
+
+      - name: CSS audit
+        run: npm run audit:css
+
+      - name: Dead import scan
+        run: npm run audit:dead
+
+      - name: Lint
+        run: npm run lint
+
       - name: Type check
         run: npm run typecheck
 
@@ -40,14 +52,34 @@ jobs:
       - name: Route smoke checks
         run: npm run smoke:routes
 
+      - name: Functional smoke checks
+        run: npm run smoke:functional
+
+      - name: Build output audit
+        run: npm run audit:build
+
+      - name: Build health report
+        run: npm run health:report
+
+      - name: Create Hostinger zip artifact
+        run: npm run artifact:zip
+
       - name: Verify static export
         run: |
           test -f out/index.html
           test -d out/_next
+          test -f bjelectronics-hostinger-out.zip
+          test -f reports/build-health.md
           echo "Static export verified"
 
       - name: Upload Hostinger artifact
         uses: actions/upload-artifact@v4
         with:
           name: bjelectronics-hostinger-out
-          path: out
+          path: bjelectronics-hostinger-out.zip
+
+      - name: Upload build reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: bjelectronics-build-reports
+          path: reports
