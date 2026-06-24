@@ -37,7 +37,8 @@ const failures = [];
 if (missingApp.length) failures.push(`Missing storefront snippets: ${missingApp.join(', ')}`);
 if (cart.length !== 1 || cart[0].quantity !== 3) failures.push('Cart quantity smoke failed.');
 if (!order.items.length || order.total !== 180) failures.push('Order payload smoke failed.');
-if (!dataLayer.includes("supabase.from('orders').insert")) failures.push('Checkout should use direct RLS protected orders insert.');
+if (!dataLayer.includes("functions.invoke('secure-checkout'")) failures.push('Checkout should use the secure-checkout Edge Function.');
+if (dataLayer.includes("supabase.from('orders').insert")) failures.push('Checkout still inserts directly into orders.');
 if (dataLayer.includes("rpc('place_order_public'")) failures.push('Checkout still references legacy public RPC.');
 
 fs.mkdirSync('reports', { recursive: true });
