@@ -1,6 +1,7 @@
 name: Build BJ Electronics
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
   pull_request:
@@ -9,9 +10,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: bjelectronics-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -28,8 +34,16 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Show toolchain
+        run: |
+          node --version
+          npm --version
+
+      - name: Clean generated output
+        run: rm -rf .next out reports bjelectronics-hostinger-out.zip
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Production preflight
         run: npm run preflight
@@ -82,13 +96,17 @@ jobs:
           echo "Static export verified"
 
       - name: Upload Hostinger artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bjelectronics-hostinger-out
           path: bjelectronics-hostinger-out.zip
+          if-no-files-found: ignore
 
       - name: Upload build reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bjelectronics-build-reports
           path: reports
+          if-no-files-found: ignore
