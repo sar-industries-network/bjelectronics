@@ -16,11 +16,13 @@ const requiredRoutes = [
   'product/samsung-galaxy-a55-5g/index.html',
   'product/hp-pavilion-15-core-i5/index.html',
   'order-success/BJ-SMOKE-001/index.html',
+  'help/index.html',
+  'roadmap/index.html',
   'cart/index.html',
   'checkout/index.html',
   'track-order/index.html',
   'wishlist/index.html',
-  'account/index.html',
+  'account/index.html'
 ];
 
 const missing = requiredRoutes.filter((route) => !fs.existsSync(path.join(process.cwd(), 'out', route)));
