@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+      NEXT_PUBLIC_ADMIN_EMAIL: ${{ secrets.NEXT_PUBLIC_ADMIN_EMAIL }}
 
     steps:
       - name: Checkout
@@ -25,6 +30,9 @@ jobs:
 
       - name: Production preflight
         run: npm run preflight
+
+      - name: Validate environment
+        run: npm run env:check:strict
 
       - name: Check package lock consistency
         run: npm run lock:check
@@ -43,11 +51,6 @@ jobs:
 
       - name: Build static app
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_ADMIN_EMAIL: ${{ secrets.NEXT_PUBLIC_ADMIN_EMAIL }}
 
       - name: Route smoke checks
         run: npm run smoke:routes
