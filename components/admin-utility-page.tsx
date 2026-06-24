@@ -1,0 +1,6 @@
+import { ArrowUpRight, Boxes, Settings } from 'lucide-react';
+import { AdminShell } from './admin-shell';
+
+export function AdminUtilityPage({ title, description, active = 'overview' }: { title: string; description: string; active?: 'overview' | 'products' | 'orders' | 'product-manager' | 'platform' | 'settings' | 'ui-kit' | 'roadmap' | 'feature-center' | 'support' }) {
+  return <AdminShell active={active}><section className="ops-hero card"><div><span className="admin-eyebrow"><Boxes size={16}/> Admin Module</span><h1>{title}</h1><p>{description}</p></div><a className="btn" href="/admin/dashboard">Open Dashboard <ArrowUpRight size={16}/></a></section><section className="ops-grid mt-5"><div className="ops-panel card"><div className="ops-panel-head"><div><span><Settings size={18}/></span><h2>Module controls</h2></div></div><p className="text-sm font-semibold leading-6 text-slate-500 dark:text-slate-300">This page is connected to the protected admin shell. Use the dashboard, product manager, orders and settings modules for live operations.</p><div className="mt-4 flex flex-wrap gap-2"><a className="btn-soft" href="/admin/dashboard">Dashboard</a><a className="btn-soft" href="/admin/products">Products</a><a className="btn-soft" href="/admin/orders">Orders</a><a className="btn-soft" href="/admin/settings">Settings</a></div></div></section></AdminShell>;
+}
