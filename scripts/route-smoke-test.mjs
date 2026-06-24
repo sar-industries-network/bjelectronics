@@ -12,6 +12,8 @@ const requiredRoutes = [
   'cart/index.html',
   'checkout/index.html',
   'track-order/index.html',
+  'wishlist/index.html',
+  'account/index.html',
 ];
 
 const missing = requiredRoutes.filter((route) => !fs.existsSync(path.join(process.cwd(), 'out', route)));
