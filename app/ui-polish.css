@@ -1,6 +1,7 @@
 /* Consolidated UI polish entrypoint.
    Source layers are imported through one stable root for predictable cascade order. */
 @import './design-system.css';
+@import './pro-ui-kit.css';
 @import './product-detail-merged.css';
 @import './product-media.css';
 @import './product-detail-minimal.css';
