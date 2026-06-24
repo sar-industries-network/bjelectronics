@@ -10,6 +10,22 @@ Added a global design system layer:
 
 It defines shared tokens for colors, borders, radii, shadows, focus rings, containers, cards, buttons, inputs, badges, tables, status chips, storefront, product cards, admin shells and accessibility motion preferences.
 
+### Store template polish layer
+
+Added a dedicated storefront template layer:
+
+- `app/store-template-polish.css`
+
+It upgrades the customer-facing store header, search area, hero layout, category tiles, product grid, product cards, image handling, price/rating rows, footer, mobile bottom nav and sticky cart bar.
+
+### Storefront component polish
+
+Updated:
+
+- `components/storefront-products.tsx`
+
+The product card now has cleaner component structure, product image URL rendering, stock badges, wishlist button polish, brand label, rating row and improved price layout.
+
 ### Cross-device responsive system
 
 Added a dedicated responsive layer:
@@ -32,7 +48,7 @@ Updated:
 
 - `app/ui-polish.css`
 
-The full polish cascade now loads the design system first, then product detail, media, minimalist product detail polish, storefront polish, admin shell polish, dashboard polish and responsive polish.
+The full polish cascade now loads the design system first, then product detail, media, minimalist product detail polish, storefront polish, admin shell polish, dashboard polish, responsive polish and the final store template polish.
 
 ### Tailwind design token upgrade
 
@@ -78,7 +94,7 @@ New commands:
 - `npm run quality`
 - `npm run verify`
 
-The CI workflow now runs production preflight before typecheck/build/smoke checks.
+The CI workflow now runs production preflight before typecheck/build/smoke checks, and preflight now requires the final store template polish layer.
 
 ## Current verification status
 
