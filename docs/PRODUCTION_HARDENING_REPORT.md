@@ -15,9 +15,13 @@
 - Replaced broad public-read table admin policies with write-only admin policies to reduce duplicate SELECT evaluation.
 - Moved admin RLS checks from exposed `public.is_admin()` to non-exposed `private.is_admin()` and rewired active policies.
 - Revoked public execution from internal SECURITY DEFINER helpers: `is_admin`, `rls_auto_enable`, `saas_emit_event`, `saas_order_event_trigger`, and `saas_product_event_trigger`.
+- Removed public execution from the remaining checkout/tracking SECURITY DEFINER RPCs.
+- Added a validated anonymous checkout insert policy on `orders` so guest checkout can work without an exposed SECURITY DEFINER RPC.
 - Added missing SaaS outbox foreign-key index: `idx_saas_outbox_event_id`.
 - Split SaaS feature flag and product media policies into public read plus admin-only insert/update/delete policies.
-- Scoped checkout and tracking public RPC execution to anonymous storefront usage only.
+- Fixed the duplicate anonymous `orders` INSERT policy warning by scoping admin order management to authenticated admin sessions only.
+- Supabase security advisor now reports zero lints.
+- Supabase performance advisor now reports no WARN lints; remaining items are INFO-only unused-index observations that should age out after real traffic uses the indexes.
 
 ### Frontend/admin
 - Added advanced product manager route at `/admin/product-manager`.
@@ -26,13 +30,14 @@
 - Consolidated UI polish imports through `app/ui-polish.css`.
 - Consolidated Supabase browser client usage through a single shared runtime-safe client export.
 - Updated storefront data loading so public products/categories/promotions/settings do not fall back to local seed just because protected admin/customer tables are blocked by RLS.
+- Updated checkout storage to use the RLS-protected direct `orders` insert path instead of `place_order_public` RPC.
 
 ## Known limitations
 
 1. Hostinger live redeploy still has to be triggered by Hostinger Git integration or Hostinger panel. The repository is deployment-ready, but this environment cannot press the Hostinger redeploy button.
 2. `/admin/products` now reuses the advanced product manager route.
 3. `components/enterprise-app.tsx` is still retained as a legacy fallback until every route reference is removed and a production build passes.
-4. Two Supabase security advisor warnings remain intentionally for anonymous checkout/order tracking RPCs: `place_order_public` and `track_order_public`. Removing anonymous access would break guest checkout/tracking until these are replaced by Edge Functions.
+4. Supabase unused-index entries may remain as INFO until production traffic uses the new indexes. They are not security warnings or build errors.
 
 ## Hostinger deployment settings
 
