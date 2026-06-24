@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Activity, BellRing, Boxes, CheckCircle2, Clock, DatabaseZap, Flag, Package, RefreshCcw, RadioTower, ServerCog, Workflow } from 'lucide-react';
+import { AdminShell } from './admin-shell';
 import { loadSaasEvents, SaasEvent, SaasOutboxItem, subscribeSaasEvents } from '@/lib/saas/event-bus';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
@@ -63,58 +64,60 @@ export function AdminSaasControlCenter() {
   };
 
   return (
-    <main className="admin-saas-page min-h-screen bg-slate-50 p-6 text-slate-950 dark:bg-[#07111f] dark:text-white">
-      <header className="saas-hero card">
-        <div>
-          <span className="admin-eyebrow"><RadioTower size={16} /> SaaS Architecture Level 2</span>
-          <h1>Enterprise Event Control Center</h1>
-          <p>Monitor realtime events, outbox pipeline, order lifecycle timeline, feature flags and backend sync health.</p>
-        </div>
-        <button className="btn" onClick={load}><RefreshCcw size={17} /> Refresh</button>
-      </header>
-
-      {error && <div className="admin-notice bad mt-4">{error}</div>}
-      {loading && <div className="card mt-4">Loading SaaS control center...</div>}
-
-      <section className="saas-stat-grid">
-        <SaasStat icon={<Workflow />} label="Total Events" value={events.length} />
-        <SaasStat icon={<Clock />} label="Pending Outbox" value={stats.pending} tone="warn" />
-        <SaasStat icon={<CheckCircle2 />} label="Processed Outbox" value={stats.processed} />
-        <SaasStat icon={<Boxes />} label="Order Events" value={stats.orderEvents} />
-        <SaasStat icon={<Package />} label="Inventory Events" value={stats.inventoryEvents} />
-        <SaasStat icon={<Flag />} label="Feature Flags" value={flags.length} />
-      </section>
-
-      <section className="saas-grid">
-        <Panel title="Realtime Event Stream" icon={<Activity />}>
-          <div className="saas-list">
-            {events.map((event) => <EventRow key={event.id} event={event} />)}
-            {!events.length && <Empty text="No events yet. Create/update a product or order to generate events." />}
+    <AdminShell active="platform">
+      <main className="admin-saas-page text-slate-950 dark:text-white">
+        <header className="saas-hero card">
+          <div>
+            <span className="admin-eyebrow"><RadioTower size={16} /> SaaS Architecture Level 2</span>
+            <h1>Enterprise Event Control Center</h1>
+            <p>Monitor realtime events, outbox pipeline, order lifecycle timeline, feature flags and backend sync health.</p>
           </div>
-        </Panel>
+          <button className="btn" onClick={load}><RefreshCcw size={17} /> Refresh</button>
+        </header>
 
-        <Panel title="Outbox Queue" icon={<ServerCog />}>
-          <div className="saas-list">
-            {outbox.map((item) => <div className="saas-row" key={item.id}><div><b>{item.target}</b><small>{item.event_id}</small></div><span className={item.status === 'pending' ? 'status-off' : 'status-on'}>{item.status}</span></div>)}
-            {!outbox.length && <Empty text="No outbox items found." />}
-          </div>
-        </Panel>
+        {error && <div className="admin-notice bad mt-4">{error}</div>}
+        {loading && <div className="card mt-4">Loading SaaS control center...</div>}
 
-        <Panel title="Order Timeline" icon={<BellRing />}>
-          <div className="saas-list">
-            {timeline.map((item) => <div className="saas-row" key={item.id}><div><b>{item.status}</b><small>{item.order_number || item.order_id} · {new Date(item.created_at).toLocaleString()}</small></div><span className="status-on">timeline</span></div>)}
-            {!timeline.length && <Empty text="No order timeline records yet." />}
-          </div>
-        </Panel>
+        <section className="saas-stat-grid">
+          <SaasStat icon={<Workflow />} label="Total Events" value={events.length} />
+          <SaasStat icon={<Clock />} label="Pending Outbox" value={stats.pending} tone="warn" />
+          <SaasStat icon={<CheckCircle2 />} label="Processed Outbox" value={stats.processed} />
+          <SaasStat icon={<Boxes />} label="Order Events" value={stats.orderEvents} />
+          <SaasStat icon={<Package />} label="Inventory Events" value={stats.inventoryEvents} />
+          <SaasStat icon={<Flag />} label="Feature Flags" value={flags.length} />
+        </section>
 
-        <Panel title="Feature Flags" icon={<DatabaseZap />}>
-          <div className="saas-list">
-            {flags.map((flag) => <button className="saas-row flag-row-button" key={flag.id} onClick={() => toggleFlag(flag)}><div><b>{flag.label}</b><small>{flag.flag_key}</small></div><span className={flag.enabled ? 'status-on' : 'status-off'}>{flag.enabled ? 'Enabled' : 'Disabled'}</span></button>)}
-            {!flags.length && <Empty text="No feature flags configured." />}
-          </div>
-        </Panel>
-      </section>
-    </main>
+        <section className="saas-grid">
+          <Panel title="Realtime Event Stream" icon={<Activity />}>
+            <div className="saas-list">
+              {events.map((event) => <EventRow key={event.id} event={event} />)}
+              {!events.length && <Empty text="No events yet. Create/update a product or order to generate events." />}
+            </div>
+          </Panel>
+
+          <Panel title="Outbox Queue" icon={<ServerCog />}>
+            <div className="saas-list">
+              {outbox.map((item) => <div className="saas-row" key={item.id}><div><b>{item.target}</b><small>{item.event_id}</small></div><span className={item.status === 'pending' ? 'status-off' : 'status-on'}>{item.status}</span></div>)}
+              {!outbox.length && <Empty text="No outbox items found." />}
+            </div>
+          </Panel>
+
+          <Panel title="Order Timeline" icon={<BellRing />}>
+            <div className="saas-list">
+              {timeline.map((item) => <div className="saas-row" key={item.id}><div><b>{item.status}</b><small>{item.order_number || item.order_id} · {new Date(item.created_at).toLocaleString()}</small></div><span className="status-on">timeline</span></div>)}
+              {!timeline.length && <Empty text="No order timeline records yet." />}
+            </div>
+          </Panel>
+
+          <Panel title="Feature Flags" icon={<DatabaseZap />}>
+            <div className="saas-list">
+              {flags.map((flag) => <button className="saas-row flag-row-button" key={flag.id} onClick={() => toggleFlag(flag)}><div><b>{flag.label}</b><small>{flag.flag_key}</small></div><span className={flag.enabled ? 'status-on' : 'status-off'}>{flag.enabled ? 'Enabled' : 'Disabled'}</span></button>)}
+              {!flags.length && <Empty text="No feature flags configured." />}
+            </div>
+          </Panel>
+        </section>
+      </main>
+    </AdminShell>
   );
 }
 
