@@ -1,60 +1,117 @@
-# BJ ELECTRONICS Enterprise Frontend + Supabase Backend
+# BJ ELECTRONICS Enterprise Commerce Platform
 
-Stack: React + Next.js + Tailwind CSS frontend, Hostinger static frontend deployment, Supabase backend/storage.
+Production storefront and admin platform for the BJ ELECTRONICS domain.
 
-## Local Windows 11 test
+Stack: Next.js static export, React, Tailwind CSS, Hostinger static hosting, Supabase Auth, RLS, database and Edge Functions.
 
-1. Extract the ZIP.
-2. Open the folder.
-3. Double click `start-local.bat`.
-4. Open `http://localhost:3000`.
+## Production domain
 
-Admin:
-- Email: `admin@bjelectronics.com`
-- Password: `Admin@1234`
+Configure the live domain in Hostinger and environment variables as your BJ ELECTRONICS domain.
 
-The app works without Supabase using local browser fallback data. After Supabase env variables are added, it reads/writes to Supabase REST API.
+Hostinger should serve the generated `out` folder from `public_html` and include the generated `.htaccess` security headers.
 
-## Supabase setup
+## Required environment variables
 
-1. Create a Supabase project.
-2. Open SQL Editor.
-3. Run `supabase/schema.sql`.
-4. Copy Project URL and anon public key.
-5. Create `.env.local` from `.env.example` and paste:
+Configure these in Hostinger and GitHub Actions secrets:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
-NEXT_PUBLIC_SITE_URL=https://bjelectronics.shop
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_ADMIN_EMAIL=
 ```
 
-Then run:
+Do not configure or commit `NEXT_PUBLIC_ADMIN_ACCESS_CODE`.
+
+Do not expose `SUPABASE_SERVICE_ROLE_KEY` in frontend variables. It belongs only inside Supabase Edge Function runtime secrets.
+
+## Local development
 
 ```bash
-npm install --no-audit --no-fund
-npm run build
+npm install
+npm run dev
 ```
 
-## Hostinger frontend deployment
+Open `http://localhost:3000`.
 
-This is a static frontend deployment.
+## Production verification
 
-1. Run `npm run build` locally.
-2. Open Hostinger File Manager.
-3. Empty `public_html`.
-4. Upload all CONTENTS from the generated `out` folder into `public_html`.
-5. Upload `hostinger/.htaccess` into `public_html/.htaccess`.
-6. Visit `https://bjelectronics.shop`.
+```bash
+npm install
+npm run verify
+```
 
-Do not use Node.js App, Next.js server runtime, MySQL, MariaDB, or Hostinger Horizons AI builder for this package.
+The verify command runs preflight, environment validation, secret scan, lock check, CSS audit, dead import scan, lint, typecheck, static build, route smoke, functional smoke, build audit, health report and Hostinger artifact generation.
 
-## Routes included
+## Hostinger deployment
 
-Store: `/`, `/products`, `/product/:slug`, `/categories/:slug`, `/cart`, `/checkout`, `/order-success/:orderNumber`, `/track-order`, `/wishlist`, `/account`.
+Recommended settings:
 
-Admin: `/admin/login`, `/admin`, `/admin/orders`, `/admin/products`, `/admin/categories`, `/admin/customers`, `/admin/promotions`, `/admin/theme-settings`, `/admin/reports`, `/admin/inventory`, `/admin/payments`, `/admin/users`, `/admin/settings`.
+```text
+Install command: npm install
+Build command: npm run build
+Output directory: out
+Node version: 20+
+```
 
-## Important security note
+If uploading manually:
 
-The included Supabase policies are permissive for demo/frontend testing. Before taking real payments or storing sensitive customer data, replace demo policies with Supabase Auth + role-based admin policies.
+1. Run `npm run build`.
+2. Upload the contents of `out` into `public_html`.
+3. Ensure `public_html/.htaccess` exists.
+4. Visit the configured production domain.
+
+## Supabase backend
+
+Current backend uses:
+
+- Supabase Auth for admin sign-in
+- `admin_profiles` for admin authorization
+- RLS for protected data
+- `secure-checkout` Edge Function for checkout
+- `support_tickets` and `feature_requests` tables for Help Center submissions
+
+Admin access requires:
+
+1. Supabase Auth user session
+2. active row in `public.admin_profiles`
+3. RLS permission through `private.is_admin()`
+
+## Important routes
+
+Storefront:
+
+- `/`
+- `/products`
+- `/product/:slug`
+- `/categories/:slug`
+- `/cart`
+- `/checkout`
+- `/order-success/:orderNumber`
+- `/track-order`
+- `/wishlist`
+- `/account`
+- `/help`
+- `/roadmap`
+
+Admin:
+
+- `/admin/signin`
+- `/admin`
+- `/admin/dashboard`
+- `/admin/products`
+- `/admin/product-manager`
+- `/admin/orders`
+- `/admin/platform`
+- `/admin/ui-kit`
+- `/admin/support`
+- `/admin/settings`
+
+## Security baseline
+
+- Static export does not rely on Next.js middleware.
+- Admin UI is gated by Supabase Auth and admin profile validation.
+- Protected data is enforced by Supabase RLS.
+- Checkout does not insert orders directly from anonymous frontend code.
+- Secret scan prevents committed Supabase project URLs, publishable keys, secret keys and JWT-like secrets.
+- Hostinger `.htaccess` adds CSP and hardening headers.
