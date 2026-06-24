@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Boxes, DatabaseZap, LayoutDashboard, LogOut, Package, Palette, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
+import { Boxes, DatabaseZap, LayoutDashboard, LogOut, Map, Package, Palette, Settings, ShoppingBag, Sparkles, Zap } from 'lucide-react';
 import { supabase, supabaseClientConfigured } from '@/lib/supabase/client';
 
 type AdminShellProps = {
@@ -16,6 +16,7 @@ const links = [
   { key: 'product-manager', href: '/admin/product-manager', label: 'Product Manager', icon: ShoppingBag },
   { key: 'platform', href: '/admin/platform', label: 'SaaS Platform', icon: DatabaseZap },
   { key: 'ui-kit', href: '/admin/ui-kit', label: 'UI Kit', icon: Palette },
+  { key: 'roadmap', href: '/roadmap', label: 'Roadmap', icon: Map },
   { key: 'settings', href: '/admin/settings', label: 'Settings', icon: Settings },
 ] as const;
 
