@@ -2,8 +2,11 @@ import fs from 'node:fs';
 
 const app = fs.readFileSync('components/storefront-app.tsx', 'utf8');
 const dataLayer = fs.readFileSync('lib/data-layer.js', 'utf8');
+const support = fs.readFileSync('components/support-center-client.tsx', 'utf8');
 const requiredAppSnippets = ['const addToCart', 'const updateQty', 'function CheckoutPage', 'function CartPage', 'createOrder(order)'];
+const requiredSupportSnippets = ["from('support_tickets').insert", "from('feature_requests').insert", 'SECURITY_LIMITS.support', 'SECURITY_LIMITS.featureRequest'];
 const missingApp = requiredAppSnippets.filter((snippet) => !app.includes(snippet));
+const missingSupport = requiredSupportSnippets.filter((snippet) => !support.includes(snippet));
 
 const cart = [];
 function add(productId, quantity = 1) {
@@ -35,6 +38,7 @@ const order = {
 
 const failures = [];
 if (missingApp.length) failures.push(`Missing storefront snippets: ${missingApp.join(', ')}`);
+if (missingSupport.length) failures.push(`Missing support snippets: ${missingSupport.join(', ')}`);
 if (cart.length !== 1 || cart[0].quantity !== 3) failures.push('Cart quantity smoke failed.');
 if (!order.items.length || order.total !== 180) failures.push('Order payload smoke failed.');
 if (!dataLayer.includes("functions.invoke('secure-checkout'")) failures.push('Checkout should use the secure-checkout Edge Function.');
