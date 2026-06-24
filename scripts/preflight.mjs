@@ -47,6 +47,7 @@ const requiredFiles = [
 const forbiddenFiles = [
   'middleware.ts',
   'components/enterprise-app.tsx',
+  'app/order-success/[orderNumber]/page.tsx',
   'app/product-detail.css',
   'app/product-detail-plus.css',
   'app/product-detail-fixes.css',
@@ -65,6 +66,12 @@ const legacy = forbiddenFiles.filter((file) => fs.existsSync(file));
 if (legacy.length) {
   console.error('Preflight failed. Legacy duplicate/dead files still exist:');
   for (const file of legacy) console.error(`- ${file}`);
+  process.exit(1);
+}
+
+const orderSuccessRoutes = fs.readdirSync('app/order-success', { withFileTypes: true }).filter((entry) => entry.isDirectory() && /^\[.+\]$/.test(entry.name));
+if (orderSuccessRoutes.length !== 1 || orderSuccessRoutes[0].name !== '[orderNo]') {
+  console.error('Preflight failed. Only app/order-success/[orderNo] is allowed to avoid ambiguous dynamic routes.');
   process.exit(1);
 }
 
