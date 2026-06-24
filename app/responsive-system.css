@@ -1,0 +1,61 @@
+/* Cross-platform responsive system: phones, tablets, laptops, desktops, TV-like screens */
+@media (min-width: 1440px) {
+  .container-x { width: min(1320px, calc(100% - 64px)) !important; }
+  .home-hero-wrap { grid-template-columns: 260px 1fr 320px !important; }
+  .amazon-product-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 1720px) {
+  .container-x { width: min(1480px, calc(100% - 80px)) !important; }
+  .admin-shell-layout { grid-template-columns: 310px minmax(0, 1fr) !important; }
+  .amazon-product-grid { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; }
+  .pdp-shell, .pdp-tabs, .pdp-related, .pdp-topbar { max-width: 1440px !important; }
+}
+@media (max-width: 1280px) {
+  .amazon-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .home-hero-wrap { grid-template-columns: 1fr !important; }
+  .home-hero-wrap aside { display: none !important; }
+}
+@media (max-width: 1024px) {
+  .amazon-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .store-header .mobile-utility .container-x { font-size: 11px; }
+  .ops-kpis, .saas-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .ops-grid, .saas-grid { grid-template-columns: 1fr !important; }
+  .admin-shell-sidebar nav { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .admin-shell-sidebar nav a { justify-content: center; }
+}
+@media (max-width: 820px) {
+  .amazon-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .store-header .mobile-utility .container-x { grid-template-columns: 1fr !important; }
+  .store-header .mobile-utility .flex { justify-content: start !important; }
+  .ops-kpis, .saas-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .admin-shell-sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .pdp-meta-grid, .pdp-trust-grid, .pdp-highlights, .pdp-spec-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 640px) {
+  .amazon-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+  .amazon-product-card { padding: 12px !important; border-radius: 20px !important; }
+  .amazon-product-card h3 { min-height: 40px !important; font-size: .9rem !important; line-height: 1.25 !important; }
+  .product-image-box { height: 128px !important; border-radius: 18px !important; font-size: 3.7rem !important; }
+  .add-cart-btn { width: 100% !important; min-height: 42px !important; font-size: .8rem !important; }
+  .home-hero-wrap { padding-top: 12px !important; }
+  .hero-card { min-height: 300px !important; }
+  .hero-card h1 { max-width: 78% !important; }
+  .hero-card p { max-width: 70% !important; }
+  .ops-kpis, .saas-stat-grid { gap: 10px !important; }
+  .ops-kpi, .saas-stat { padding: 13px !important; border-radius: 18px !important; }
+  .ops-kpi b, .saas-stat b { font-size: 1.1rem !important; }
+  .admin-shell-side-card { display: none !important; }
+  .pdp-meta-grid, .pdp-trust-grid, .pdp-highlights, .pdp-spec-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 380px) {
+  .amazon-product-grid { grid-template-columns: 1fr !important; }
+  .product-image-box { height: 150px !important; }
+  .store-header .mobile-header-main { gap: 6px !important; }
+  .store-header .mobile-header-main .btn-soft { min-width: 34px !important; }
+  .hero-card h1, .hero-card p { max-width: 100% !important; }
+  .hero-devices { display: none !important; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover, .btn-soft:hover, .amazon-product-card:hover, .category-tile:hover { transform: none !important; }
+  .btn, .btn-soft, .nav-pill, button, a { min-height: 44px; }
+}
