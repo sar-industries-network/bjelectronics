@@ -11,10 +11,14 @@ const requiredFiles = [
   'app/responsive-system.css',
   'app/store-template-polish.css',
   'app/pro-ui-kit.css',
+  'app/admin-dashboard-plus.css',
   'app/help/page.tsx',
   'app/roadmap/page.tsx',
+  'app/admin/dashboard/page.tsx',
+  'app/admin/support/page.tsx',
   'components/storefront-app.tsx',
   'components/support-center-client.tsx',
+  'components/admin-dashboard-plus.tsx',
   'components/admin-shell.tsx',
   'components/admin-orders-manager.tsx',
   'components/admin-settings-manager.tsx',
@@ -71,7 +75,7 @@ if (nodeMajor < 20) {
 }
 
 const uiPolish = fs.readFileSync('app/ui-polish.css', 'utf8');
-for (const requiredImport of ['./design-system.css', './pro-ui-kit.css', './responsive-system.css', './product-detail-minimal.css', './store-template-polish.css']) {
+for (const requiredImport of ['./design-system.css', './pro-ui-kit.css', './admin-dashboard-plus.css', './responsive-system.css', './product-detail-minimal.css', './store-template-polish.css']) {
   if (!uiPolish.includes(requiredImport)) {
     console.error(`Preflight failed. app/ui-polish.css is missing ${requiredImport}.`);
     process.exit(1);
