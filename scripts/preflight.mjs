@@ -14,6 +14,7 @@ const requiredFiles = [
   'app/help/page.tsx',
   'app/roadmap/page.tsx',
   'components/storefront-app.tsx',
+  'components/support-center-client.tsx',
   'components/admin-shell.tsx',
   'components/admin-orders-manager.tsx',
   'components/admin-settings-manager.tsx',
