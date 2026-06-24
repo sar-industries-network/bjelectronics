@@ -1,4 +1,4 @@
-import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { dirname, join, relative, sep } from 'path';
 
 console.log('Postbuild: preparing Hostinger deployment assets...');
@@ -26,6 +26,39 @@ function copyDirIfExists(source, destination) {
   ensureDir(destination);
   cpSync(source, destination, { recursive: true });
   return true;
+}
+
+function writeHostingerSecurityHeaders() {
+  const csp = [
+    "default-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+    "img-src 'self' data: https:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co"
+  ].join('; ');
+  const content = [
+    'Options -MultiViews',
+    '<IfModule mod_headers.c>',
+    `Header always set Content-Security-Policy "${csp}"`,
+    'Header always set X-Content-Type-Options "nosniff"',
+    'Header always set X-Frame-Options "DENY"',
+    'Header always set Referrer-Policy "strict-origin-when-cross-origin"',
+    'Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"',
+    '</IfModule>',
+    '<IfModule mod_rewrite.c>',
+    'RewriteEngine On',
+    'RewriteCond %{HTTPS} !=on',
+    'RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]',
+    'RewriteCond %{REQUEST_FILENAME} !-f',
+    'RewriteCond %{REQUEST_FILENAME} !-d',
+    'RewriteRule ^ index.html [QSA,L]',
+    '</IfModule>',
+    ''
+  ].join('\n');
+  writeFileSync(htaccessDest, content);
 }
 
 function walkFiles(dir) {
@@ -87,6 +120,8 @@ try {
   } else {
     console.log('No .htaccess found in hostinger folder');
   }
+  writeHostingerSecurityHeaders();
+  console.log('Static security headers written to out/.htaccess');
 
   if (!existsSync('out/index.html')) {
     console.error('ERROR: out/index.html is missing after postbuild.');
