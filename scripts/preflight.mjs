@@ -11,15 +11,33 @@ const requiredFiles = [
   'app/responsive-system.css',
   'components/storefront-app.tsx',
   'components/admin-shell.tsx',
+  'components/admin-orders-manager.tsx',
+  'components/admin-settings-manager.tsx',
   'components/pro-product-detail-live.tsx',
   'lib/supabaseClient.ts',
   'scripts/route-smoke-test.mjs',
+];
+
+const forbiddenFiles = [
+  'components/enterprise-app.tsx',
+  'app/product-detail.css',
+  'app/product-detail-plus.css',
+  'app/product-detail-fixes.css',
+  'components/admin-dashboard-pro.tsx',
+  'components/command-center-client.tsx'
 ];
 
 const missing = requiredFiles.filter((file) => !fs.existsSync(file));
 if (missing.length) {
   console.error('Preflight failed. Missing required files:');
   for (const file of missing) console.error(`- ${file}`);
+  process.exit(1);
+}
+
+const legacy = forbiddenFiles.filter((file) => fs.existsSync(file));
+if (legacy.length) {
+  console.error('Preflight failed. Legacy duplicate/dead files still exist:');
+  for (const file of legacy) console.error(`- ${file}`);
   process.exit(1);
 }
 
