@@ -42,7 +42,15 @@ A reusable admin shell was added:
 - `components/admin-shell.tsx`
 - `app/admin-shell.css`
 
-The realtime operations dashboard now uses this shared shell, which removes duplicated sidebar/layout code from that feature.
+The realtime operations dashboard and SaaS platform dashboard now use this shared shell, which removes duplicated sidebar/layout code from those features.
+
+### Storefront core split
+
+A storefront core module was added:
+
+- `components/storefront-core.tsx`
+
+It extracts shared storefront header, footer, logo, theme button, sticky cart bar, mobile nav and store link helpers. This prepares `components/enterprise-app.tsx` for safe feature-by-feature extraction without breaking active storefront routes in a single risky edit.
 
 ### Admin products route cleanup
 
@@ -61,7 +69,7 @@ The GitHub Actions workflow now runs the smoke checks after the static build.
 
 ### `components/enterprise-app.tsx`
 
-This file is still large, but it is currently the active storefront shell. It was not deleted blindly because it still powers working storefront routes. The safe next refactor is to split it feature-by-feature after visual QA.
+This file is still large, but it is currently the active storefront shell. It was not deleted blindly because it still powers working storefront routes. The safe next refactor is to replace its inline storefront pieces with the extracted storefront core and feature modules step by step.
 
 ### Route wrapper files
 
@@ -69,7 +77,8 @@ Static export on Hostinger benefits from route wrapper files. These were not del
 
 ## Remaining safe next refactor
 
-1. Split `components/enterprise-app.tsx` into storefront feature modules.
-2. Move product-manager and platform dashboard to the reusable admin shell as the next safe UI refactor.
-3. Add deeper route smoke checks for dynamic product/category routes when stable seed data is finalized.
-4. Continue deleting files only after they are no longer imported by any active route.
+1. Move product grid/product card into a storefront product module.
+2. Move cart and checkout into storefront commerce modules.
+3. Move product-manager to the reusable admin shell as the next safe UI refactor.
+4. Add deeper route smoke checks for dynamic product/category routes when stable seed data is finalized.
+5. Continue deleting files only after they are no longer imported by any active route.
