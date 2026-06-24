@@ -14,6 +14,8 @@ export type StorefrontContext = {
 };
 
 export function StoreLink({ href, children, className, ctx }: { href: string; children: React.ReactNode; className?: string; ctx: StorefrontContext }) {
+  const dedicatedRoute = href.startsWith('/product/');
+  if (dedicatedRoute) return <a href={href} className={className}>{children}</a>;
   return <a href={href} className={className} onClick={(event) => { event.preventDefault(); ctx.navigate(href); }}>{children}</a>;
 }
 
