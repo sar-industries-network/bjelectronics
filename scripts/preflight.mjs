@@ -69,6 +69,27 @@ if (legacy.length) {
   process.exit(1);
 }
 
+function listSourceFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const files = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) files.push(...listSourceFiles(full));
+    else if (/\.(ts|tsx|js|jsx)$/.test(entry.name)) files.push(full);
+  }
+  return files;
+}
+
+const legacyImports = [...listSourceFiles('app'), ...listSourceFiles('components')].filter((file) => {
+  const text = fs.readFileSync(file, 'utf8');
+  return text.includes('@/components/enterprise-app') || text.includes('EnterpriseApp');
+});
+if (legacyImports.length) {
+  console.error('Preflight failed. Legacy EnterpriseApp references remain:');
+  for (const file of legacyImports) console.error(`- ${file}`);
+  process.exit(1);
+}
+
 const orderSuccessRoutes = fs.readdirSync('app/order-success', { withFileTypes: true }).filter((entry) => entry.isDirectory() && /^\[.+\]$/.test(entry.name));
 if (orderSuccessRoutes.length !== 1 || orderSuccessRoutes[0].name !== '[orderNo]') {
   console.error('Preflight failed. Only app/order-success/[orderNo] is allowed to avoid ambiguous dynamic routes.');
