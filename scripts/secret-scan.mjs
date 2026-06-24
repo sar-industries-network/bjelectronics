@@ -7,8 +7,8 @@ const findings = [];
 const patterns = [
   { name: 'supabase-project-url', regex: /https:\/\/[a-z0-9]{20}\.supabase\.co/gi },
   { name: 'supabase-publishable-key', regex: /sb_publishable_[A-Za-z0-9_-]{20,}/g },
-  { name: 'service-role-key', regex: /service_role|SUPABASE_SERVICE_ROLE_KEY/g },
-  { name: 'public-admin-code', regex: /NEXT_PUBLIC_ADMIN_ACCESS_CODE/g }
+  { name: 'supabase-secret-key', regex: /sb_secret_[A-Za-z0-9_-]{20,}/g },
+  { name: 'jwt-like-secret', regex: /eyJ[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{30,}\.[A-Za-z0-9_-]{20,}/g }
 ];
 
 function walk(dir) {
