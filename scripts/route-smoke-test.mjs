@@ -6,6 +6,8 @@ const requiredRoutes = [
   'admin/index.html',
   'admin/products/index.html',
   'admin/product-manager/index.html',
+  'admin/orders/index.html',
+  'admin/settings/index.html',
   'admin/platform/index.html',
   'admin/command-center/index.html',
   'products/index.html',
