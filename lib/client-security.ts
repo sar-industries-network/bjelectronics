@@ -37,4 +37,6 @@ export function rateLimitClient(key: string, limit: number, windowMs: number) {
 export const SECURITY_LIMITS = {
   adminSignin: { limit: 5, windowMs: 15 * 60 * 1000 },
   checkout: { limit: 6, windowMs: 10 * 60 * 1000 },
+  support: { limit: 4, windowMs: 10 * 60 * 1000 },
+  featureRequest: { limit: 3, windowMs: 20 * 60 * 1000 },
 };
