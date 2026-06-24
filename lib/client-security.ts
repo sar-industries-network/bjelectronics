@@ -6,7 +6,7 @@ export function getCsrfToken() {
   let token = sessionStorage.getItem(TOKEN_KEY);
   if (!token) {
     const bytes = new Uint8Array(24);
-    crypto.getRandomValues(bytes);
+    window.crypto.getRandomValues(bytes);
     token = Array.from(bytes).map((byte) => byte.toString(16).padStart(2, '0')).join('');
     sessionStorage.setItem(TOKEN_KEY, token);
   }
@@ -16,9 +16,7 @@ export function getCsrfToken() {
 export function validateClientSubmission(scope: string) {
   if (typeof window === 'undefined') return true;
   const token = getCsrfToken();
-  const sameOrigin = !document.referrer || new URL(document.referrer).origin === window.location.origin;
   if (!token || token.length < 32) throw new Error(`${scope} security token is invalid.`);
-  if (!sameOrigin) throw new Error(`${scope} blocked because the referring origin is not trusted.`);
   return true;
 }
 
